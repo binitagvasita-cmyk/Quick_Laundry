@@ -1,12 +1,16 @@
 // Petrol Wash Service Manager
 class PetrolWashService {
   constructor() {
-    this.API_URL = 'http://localhost:3000/api'; // Update with your backend URL
-    this.cart = this.loadCart();
-    this.services = [];
-    this.isLoggedIn = this.checkAuth();
-    this.currentUser = this.getCurrentUser();
-    this.init();
+    this.API_URL = (() => {
+  const hostname = window.location.hostname;
+  
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:3000/api';
+  } else {
+    // Point to your Render backend
+    return 'https://quick-laundry-backend.onrender.com/api';
+  }
+})();
   }
 
   init() {

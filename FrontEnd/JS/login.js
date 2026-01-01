@@ -1,5 +1,14 @@
 // ========== Configuration ==========
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = (() => {
+  const hostname = window.location.hostname;
+  
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:3000/api';
+  } else {
+    // Point to your Render backend
+    return 'https://quick-laundry-backend.onrender.com/api';
+  }
+})();
 const GOOGLE_CLIENT_ID = "968269738462-j7gmjvsqpk2b5l26c17em039eoeb5jcv.apps.googleusercontent.com";
 
 // Demo mode - set to true to bypass API calls for testing UI

@@ -5,8 +5,16 @@
 // ============================================
 
 // API Configuration
-const API_BASE_URL = 'http://localhost:3000/api';
-
+const API_BASE_URL = (() => {
+  const hostname = window.location.hostname;
+  
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:3000/api';
+  } else {
+    // Point to your Render backend
+    return 'https://quick-laundry-backend.onrender.com/api';
+  }
+})();
 // ============================================
 // PROFILE MANAGER CLASS
 // ============================================

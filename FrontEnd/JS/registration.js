@@ -5,14 +5,13 @@ let otpVerified = false;
 
 // API Configuration - Auto-detect backend URL
 const API_BASE_URL = (() => {
-  // Try to detect if running locally or on a server
   const hostname = window.location.hostname;
   
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return 'http://localhost:3000/api';
   } else {
-    // Use relative URL for production
-    return '/api';
+    // Point to your Render backend
+    return 'https://quick-laundry-backend.onrender.com/api';
   }
 })();
 
