@@ -4,8 +4,8 @@
 # ============================================
 
 from flask import Blueprint, request, jsonify
-from models.pricing import Pricing
-from services.jwt_service import optional_token
+from BackEnd.models.pricing import Pricing
+from BackEnd.services.jwt_service import optional_token
 import logging
 
 logger = logging.getLogger(__name__)

@@ -1,6 +1,6 @@
 import bcrypt
 from datetime import datetime
-from utils.database import Database
+from BackEnd.utils.database import Database
 import logging
 
 logger = logging.getLogger(__name__)

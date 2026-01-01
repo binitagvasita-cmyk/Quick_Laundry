@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
-from models.user import User
-from services.jwt_service import token_required
-from services.email_service import EmailService
-from services.image_upload_service import ImageUploadService
+from BackEnd.models.user import User
+from BackEnd.services.jwt_service import token_required
+from BackEnd.services.email_service import EmailService
+from BackEnd.services.image_upload_service import ImageUploadService
 from werkzeug.utils import secure_filename
 import logging
 import os

@@ -4,8 +4,8 @@
 # ============================================
 
 from flask import Blueprint, request, jsonify
-from models.dry_clean import DryClean
-from services.jwt_service import optional_token, token_required
+from BackEnd.models.dry_clean import DryClean
+from BackEnd.services.jwt_service import optional_token, token_required
 import logging
 
 logger = logging.getLogger(__name__)
