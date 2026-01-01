@@ -1,12 +1,12 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from BackEnd.config import config_by_name
-from utils.database import Database
-from routes.auth import init_auth_routes
-from routes.pricing import init_pricing_routes
-from routes.order import init_order_routes
-from routes.user import init_user_routes
-from routes.dry_clean import init_dry_clean_routes  # NEW - DRY CLEAN ROUTES
+from BackEnd.utils.database import Database
+from BackEnd.routes.auth import init_auth_routes
+from BackEnd.routes.pricing import init_pricing_routes
+from BackEnd.routes.order import init_order_routes
+from BackEnd.routes.user import init_user_routes
+from BackEnd.routes.dry_clean import init_dry_clean_routes  # NEW - DRY CLEAN ROUTES
 import logging
 import os
 
