@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from config import config_by_name
+from BackEnd.config import config_by_name
 from utils.database import Database
 from routes.auth import init_auth_routes
 from routes.pricing import init_pricing_routes
