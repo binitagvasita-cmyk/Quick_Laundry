@@ -1,0 +1,1021 @@
+import React, { useState } from 'react';
+import { FileText, Download, Check, Loader2 } from 'lucide-react';
+
+const BackendPDFGenerator = () => {
+  const [generating, setGenerating] = useState(false);
+  const [generated, setGenerated] = useState(false);
+
+  const generatePDF = () => {
+    setGenerating(true);
+    
+    setTimeout(() => {
+      // Create the HTML content for PDF
+      const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Quick Laundry Backend Documentation</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 40px; max-width: 1200px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #2563eb; }
+.header h1 { color: #2563eb; font-size: 2.5em; margin-bottom: 10px; }
+.meta { color: #666; font-size: 0.9em; }
+h2 { color: #2563eb; font-size: 1.8em; margin: 30px 0 15px; padding-bottom: 10px; border-bottom: 2px solid #e5e7eb; }
+h3 { color: #1e40af; font-size: 1.4em; margin: 25px 0 10px; }
+h4 { color: #1e293b; margin: 15px 0 8px; }
+.code { background: #1e293b; color: #e2e8f0; padding: 15px; border-radius: 4px; font-family: monospace; margin: 10px 0; overflow-x: auto; }
+.info-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 15px 0; }
+.warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0; }
+table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+th { background: #2563eb; color: white; padding: 10px; text-align: left; }
+td { padding: 10px; border-bottom: 1px solid #e5e7eb; }
+.endpoint { background: #f3f4f6; padding: 10px; margin: 10px 0; border-radius: 4px; }
+.method { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-right: 10px; color: white; }
+.method-get { background: #10b981; }
+.method-post { background: #3b82f6; }
+.method-put { background: #f59e0b; }
+.method-delete { background: #ef4444; }
+ul, ol { margin: 10px 0 10px 30px; }
+li { margin: 5px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>🧺 Quick Laundry Backend Documentation</h1>
+<div class="meta">Complete Technical Reference | Version 1.0.0 | Generated ${new Date().toLocaleDateString()}</div>
+</div>
+
+<h2>📋 Table of Contents</h2>
+<ol>
+<li>Project Overview</li>
+<li>Architecture & File Structure</li>
+<li>Root Configuration Files</li>
+<li>Models Layer (Database ORM)</li>
+<li>Routes Layer (API Endpoints)</li>
+<li>Services Layer (Business Logic)</li>
+<li>Utilities Layer</li>
+<li>Database Schema</li>
+<li>Authentication & Authorization</li>
+<li>Security Features</li>
+<li>API Structure</li>
+<li>Environment Configuration</li>
+<li>Deployment Guide</li>
+</ol>
+
+<h2>1. 📌 Project Overview</h2>
+<div class="info-box">
+<strong>Quick Laundry</strong> is a comprehensive Flask-based REST API for laundry service management. It provides complete backend functionality for user management, authentication, order processing, pricing, and more.
+</div>
+
+<h3>Key Features</h3>
+<ul>
+<li>JWT-based authentication with access & refresh tokens</li>
+<li>Email verification via OTP</li>
+<li>Google OAuth integration</li>
+<li>Profile picture upload with image processing</li>
+<li>Order management with status tracking</li>
+<li>Dynamic pricing system</li>
+<li>Rate limiting & brute force protection</li>
+<li>Session management</li>
+<li>Email notifications (Welcome, OTP, Password Reset, Profile Updates)</li>
+</ul>
+
+<h3>Technology Stack</h3>
+<table>
+<tr><th>Component</th><th>Technology</th><th>Version</th></tr>
+<tr><td>Framework</td><td>Flask</td><td>3.0.0</td></tr>
+<tr><td>Database</td><td>MySQL</td><td>8.2.0</td></tr>
+<tr><td>Authentication</td><td>JWT (PyJWT)</td><td>2.8.0</td></tr>
+<tr><td>Password Hashing</td><td>Bcrypt</td><td>4.1.2</td></tr>
+<tr><td>Image Processing</td><td>Pillow</td><td>11.3.3</td></tr>
+<tr><td>OAuth</td><td>Google Auth</td><td>2.27.0</td></tr>
+<tr><td>Email</td><td>SMTP (Gmail)</td><td>-</td></tr>
+</table>
+
+<h2>2. 🏗️ Architecture & File Structure</h2>
+
+<div class="code">
+quick-laundry-backend/
+│
+├── app.py                          # Main application entry
+├── config.py                       # Configuration management
+├── requirements.txt                # Dependencies
+├── .env                           # Environment variables
+│
+├── /models                        # Database models
+│   ├── __init__.py
+│   ├── user.py                   # User operations
+│   ├── pricing.py                # Pricing operations
+│   └── order.py                  # Order operations
+│
+├── /routes                        # API endpoints
+│   ├── __init__.py
+│   ├── auth.py                   # Authentication
+│   ├── user.py                   # User profiles
+│   ├── pricing.py                # Pricing data
+│   └── order.py                  # Order management
+│
+├── /services                      # Business logic
+│   ├── __init__.py
+│   ├── email_service.py          # Email sending
+│   ├── otp_service.py            # OTP management
+│   ├── jwt_service.py            # JWT tokens
+│   ├── google_oauth_service.py   # OAuth
+│   ├── password_reset_service.py # Password reset
+│   ├── session_service.py        # Sessions
+│   └── image_upload_service.py   # Image processing
+│
+├── /utils                         # Utilities
+│   ├── __init__.py
+│   ├── database.py               # DB connection
+│   └── validators.py             # Input validation
+│
+└── /uploads                       # File storage
+    └── /profile_pictures
+</div>
+
+<h3>Layered Architecture Flow</h3>
+<div class="info-box">
+<strong>Client Request</strong> → <strong>Routes (API)</strong> → <strong>Services (Logic)</strong> → <strong>Models (Data)</strong> → <strong>Database</strong>
+</div>
+
+<h2>3. 📁 Root Configuration Files</h2>
+
+<h3>app.py - Main Application</h3>
+<p><strong>Purpose:</strong> Flask application factory that initializes all components</p>
+
+<h4>Key Functions:</h4>
+<ul>
+<li><code>create_app(config_name)</code> - Application factory</li>
+<li>Initializes database connection pool</li>
+<li>Configures CORS for all origins</li>
+<li>Registers all blueprints (auth, user, pricing, orders)</li>
+<li>Creates upload directories</li>
+<li>Sets up error handlers (404, 405, 500)</li>
+<li>Adds request/response logging</li>
+<li>Runs on <code>0.0.0.0:3000</code></li>
+</ul>
+
+<h4>Health Check Endpoint:</h4>
+<div class="endpoint">
+<span class="method method-get">GET</span> /health - Returns database connection status
+</div>
+
+<h3>config.py - Configuration Management</h3>
+<p><strong>Purpose:</strong> Environment-based configuration using class inheritance</p>
+
+<h4>Configuration Classes:</h4>
+<ul>
+<li><strong>Config</strong> - Base configuration</li>
+<li><strong>DevelopmentConfig</strong> - Debug mode enabled</li>
+<li><strong>ProductionConfig</strong> - Production settings with file logging</li>
+<li><strong>TestingConfig</strong> - Test database</li>
+</ul>
+
+<h4>Key Settings:</h4>
+<table>
+<tr><th>Setting</th><th>Default</th><th>Description</th></tr>
+<tr><td>JWT_ACCESS_TOKEN_EXPIRES</td><td>24 hours</td><td>Access token validity</td></tr>
+<tr><td>JWT_REFRESH_TOKEN_EXPIRES</td><td>30 days</td><td>Refresh token validity</td></tr>
+<tr><td>OTP_EXPIRY_MINUTES</td><td>10 min</td><td>OTP validity</td></tr>
+<tr><td>OTP_MAX_ATTEMPTS</td><td>5</td><td>Max OTP requests</td></tr>
+<tr><td>MAX_LOGIN_ATTEMPTS</td><td>5</td><td>Before account lock</td></tr>
+<tr><td>LOGIN_LOCKOUT_MINUTES</td><td>15 min</td><td>Lock duration</td></tr>
+<tr><td>MAX_SESSIONS_PER_USER</td><td>5</td><td>Concurrent sessions</td></tr>
+<tr><td>MAX_CONTENT_LENGTH</td><td>16MB</td><td>File upload limit</td></tr>
+</table>
+
+<h2>4. 🗂️ Models Layer (Database ORM)</h2>
+
+<h3>user.py - User Model</h3>
+<p><strong>Purpose:</strong> All user-related database operations</p>
+
+<h4>Key Methods:</h4>
+<table>
+<tr><th>Method</th><th>Description</th><th>Returns</th></tr>
+<tr><td>hash_password()</td><td>Bcrypt hashing</td><td>Hashed string</td></tr>
+<tr><td>verify_password()</td><td>Password check</td><td>Boolean</td></tr>
+<tr><td>email_exists()</td><td>Check uniqueness</td><td>Boolean</td></tr>
+<tr><td>create_user()</td><td>Standard registration</td><td>(success, user_id/error)</td></tr>
+<tr><td>create_google_user()</td><td>OAuth registration</td><td>(success, user_id/error)</td></tr>
+<tr><td>authenticate()</td><td>Login validation</td><td>(success, user/error)</td></tr>
+<tr><td>get_user_by_id()</td><td>Retrieve user</td><td>User dict</td></tr>
+<tr><td>update_user()</td><td>Update profile</td><td>(success, message)</td></tr>
+<tr><td>update_password()</td><td>Change password</td><td>(success, message)</td></tr>
+<tr><td>is_account_locked()</td><td>Check for lock</td><td>(is_locked, minutes)</td></tr>
+</table>
+
+<h3>pricing.py - Pricing Model</h3>
+<p><strong>Purpose:</strong> Service categories and pricing management</p>
+
+<h4>Key Methods:</h4>
+<ul>
+<li><code>get_all_categories()</code> - All service categories</li>
+<li><code>get_all_pricing_items()</code> - All items with categories</li>
+<li><code>get_items_by_category(category_id)</code> - Filter by category</li>
+<li><code>get_items_by_service_type(type)</code> - Filter by service (iron, wash_iron, etc.)</li>
+<li><code>get_items_by_gender(gender)</code> - Filter by gender (men, women, kids, common)</li>
+<li><code>get_popular_items()</code> - Top 10 popular items</li>
+<li><code>search_items(term)</code> - Search by name/description</li>
+<li><code>calculate_total_price(items_list)</code> - Calculate cart total</li>
+</ul>
+
+<h3>order.py - Order Model</h3>
+<p><strong>Purpose:</strong> Order lifecycle management with transactions</p>
+
+<h4>Key Methods:</h4>
+<ul>
+<li><code>create_order(user_id, order_data)</code> - Create with items (transaction)</li>
+<li><code>get_order_by_id(order_id, user_id)</code> - Order details with items</li>
+<li><code>get_user_orders(user_id, limit, status)</code> - Order history</li>
+<li><code>update_order_status(order_id, status)</code> - Update status</li>
+<li><code>update_payment_status(order_id, status)</code> - Update payment</li>
+<li><code>cancel_order(order_id, user_id)</code> - Cancel (only pending/confirmed)</li>
+<li><code>update_order_dates(order_id, pickup, delivery)</code> - Set dates</li>
+<li><code>add_order_notes(order_id, notes)</code> - Add instructions</li>
+<li><code>get_order_statistics(user_id)</code> - Stats for user or admin</li>
+</ul>
+
+<h2>5. 🛣️ Routes Layer (API Endpoints)</h2>
+
+<h3>auth.py - Authentication Routes (/api)</h3>
+
+<div class="endpoint">
+<span class="method method-post">POST</span> /api/send-otp<br>
+<small><strong>Purpose:</strong> Generate and email OTP<br>
+<strong>Body:</strong> { "email": "user@example.com" }<br>
+<strong>Rate Limit:</strong> 5 per 10 minutes</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-post">POST</span> /api/verify-otp<br>
+<small><strong>Purpose:</strong> Validate OTP code<br>
+<strong>Body:</strong> { "email": "user@example.com", "otp": "123456" }</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-post">POST</span> /api/register<br>
+<small><strong>Purpose:</strong> Create new user<br>
+<strong>Requires:</strong> OTP verification first<br>
+<strong>Returns:</strong> User object + welcome email</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-post">POST</span> /api/login<br>
+<small><strong>Purpose:</strong> Authenticate user<br>
+<strong>Returns:</strong> Access token (24h) + Refresh token (30d)<br>
+<strong>Security:</strong> Account lock after 5 failed attempts (15 min)</small>
+</div>
+
+<h3>user.py - User Profile Routes (/api) [AUTH REQUIRED]</h3>
+
+<div class="endpoint">
+<span class="method method-get">GET</span> /api/user/&lt;id&gt;<br>
+<small>Get user profile (own profile only)</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-put">PUT</span> /api/user/&lt;id&gt;<br>
+<small>Update profile + email notification</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-post">POST</span> /api/user/&lt;id&gt;/upload-avatar<br>
+<small>Upload profile picture (300x300, max 5MB)</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-delete">DELETE</span> /api/user/&lt;id&gt;/delete-avatar<br>
+<small>Remove avatar, use default</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-post">POST</span> /api/user/change-password<br>
+<small>Change password (requires current password)</small>
+</div>
+
+<h3>pricing.py - Pricing Routes (/api/pricing) [PUBLIC]</h3>
+
+<div class="endpoint">
+<span class="method method-get">GET</span> /api/pricing/categories<br>
+<small>All service categories</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-get">GET</span> /api/pricing/items<br>
+<small>All pricing items with categories</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-get">GET</span> /api/pricing/items/popular<br>
+<small>Top 10 popular items</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-get">GET</span> /api/pricing/search?q=&lt;term&gt;<br>
+<small>Search items (min 2 characters)</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-post">POST</span> /api/pricing/calculate<br>
+<small>Calculate cart total</small>
+</div>
+
+<h3>order.py - Order Routes (/api/orders) [AUTH REQUIRED]</h3>
+
+<div class="endpoint">
+<span class="method method-post">POST</span> /api/orders<br>
+<small>Create new order with items</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-get">GET</span> /api/orders/my-orders?limit=&status=<br>
+<small>User's order history</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-get">GET</span> /api/orders/&lt;id&gt;<br>
+<small>Order details (own orders only)</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-put">PUT</span> /api/orders/&lt;id&gt;/status<br>
+<small>Update order status</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-put">PUT</span> /api/orders/&lt;id&gt;/cancel<br>
+<small>Cancel order (pending/confirmed only)</small>
+</div>
+
+<div class="endpoint">
+<span class="method method-get">GET</span> /api/orders/statistics<br>
+<small>User order statistics</small>
+</div>
+
+<h2>6. 🔧 Services Layer (Business Logic)</h2>
+
+<h3>email_service.py - Email Sending</h3>
+<p><strong>SMTP:</strong> Gmail with TLS</p>
+<ul>
+<li><code>send_otp_email()</code> - OTP verification email with gradient styling</li>
+<li><code>send_welcome_email()</code> - Welcome email after registration</li>
+<li><code>send_password_reset_email()</code> - Password reset link</li>
+<li><code>send_profile_update_email()</code> - Profile change notification</li>
+</ul>
+
+<h3>otp_service.py - OTP Management</h3>
+<ul>
+<li><code>generate_otp(length=6)</code> - Random 6-digit code</li>
+<li><code>create_otp()</code> - Store in DB (10 min expiry)</li>
+<li><code>verify_otp()</code> - Validate and mark as used</li>
+<li><code>can_request_otp()</code> - Rate limiting (5 per 10 min)</li>
+<li><code>cleanup_expired_otps()</code> - Cron job cleanup</li>
+</ul>
+
+<h3>jwt_service.py - JWT Token Management</h3>
+<ul>
+<li><code>generate_token()</code> - Access token (24 hrs)</li>
+<li><code>generate_refresh_token()</code> - Refresh token (30 days)</li>
+<li><code>verify_token()</code> - Decode and validate</li>
+<li><code>generate_password_reset_token()</code> - Reset token (1 hr)</li>
+<li><strong>@token_required</strong> - Decorator for protected routes</li>
+<li><strong>@optional_token</strong> - Decorator for optional auth</li>
+</ul>
+
+<div class="warning-box">
+<strong>Critical Fix:</strong> OPTIONS requests bypass authentication for CORS preflight
+</div>
+
+<h3>google_oauth_service.py - Google OAuth</h3>
+<ul>
+<li><code>verify_google_token()</code> - Validate Google ID token</li>
+<li><code>get_or_create_user()</code> - Login or register</li>
+<li><code>link_google_account()</code> - Attach to existing account</li>
+<li><code>generate_unique_username()</code> - From email</li>
+</ul>
+
+<h3>session_service.py - Session Management</h3>
+<ul>
+<li><code>create_session()</code> - Store JWT (24 hrs)</li>
+<li><code>validate_session()</code> - Check expiry</li>
+<li><code>get_user_sessions()</code> - All active sessions</li>
+<li><code>delete_user_sessions()</code> - Logout from all devices</li>
+<li><code>limit_user_sessions()</code> - Max 5 concurrent</li>
+<li>Tracks IP and user agent</li>
+</ul>
+
+<h3>image_upload_service.py - Image Processing</h3>
+<ul>
+<li><strong>Allowed:</strong> png, jpg, jpeg, gif, webp</li>
+<li><strong>Max Size:</strong> 5MB</li>
+<li><code>validate_image()</code> - Size and format checks</li>
+<li><code>process_and_save_image()</code> - Resize to 300x300, optimize</li>
+<li>RGBA to RGB conversion</li>
+<li>Square cropping with white background</li>
+<li>Unique UUID filenames</li>
+</ul>
+
+<h2>7. 🛠️ Utilities Layer</h2>
+
+<h3>database.py - Database Connection Manager</h3>
+<ul>
+<li><code>initialize(config)</code> - Create connection pool (5 connections)</li>
+<li><code>get_connection()</code> - Context manager</li>
+<li><code>create_tables()</code> - Initialize all tables</li>
+<li><code>execute_query()</code> - Generic query executor</li>
+<li>Auto-rollback on errors</li>
+<li>Dictionary cursor results</li>
+<li>Connection pooling for performance</li>
+</ul>
+
+<h3>validators.py - Input Validation</h3>
+<table>
+<tr><th>Validator</th><th>Rules</th></tr>
+<tr><td>validate_email_format()</td><td>Email validator with deliverability</td></tr>
+<tr><td>validate_username()</td><td>3-50 chars, alphanumeric + underscore</td></tr>
+<tr><td>validate_password()</td><td>8-50 chars, min 1 special, no spaces</td></tr>
+<tr><td>validate_phone()</td><td>10-15 digits</td></tr>
+<tr><td>validate_address()</td><td>5-500 chars</td></tr>
+<tr><td>validate_pincode()</td><td>5-6 digits</td></tr>
+<tr><td>validate_otp()</td><td>Exactly 6 digits</td></tr>
+<tr><td>validate_registration_data()</td><td>All fields, returns errors dict</td></tr>
+</table>
+
+<h2>8. 🗄️ Database Schema (MySQL)</h2>
+
+<h3>users Table</h3>
+<div class="code">
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  password_hash VARCHAR(255),
+  phone VARCHAR(20),
+  full_name VARCHAR(255),
+  address TEXT,
+  city VARCHAR(100),
+  pincode VARCHAR(10),
+  service_type ENUM('express','standard','economy'),
+  communication_preference ENUM('sms','email','both'),
+  subscribe_newsletter BOOLEAN,
+  profile_picture VARCHAR(255),
+  google_id VARCHAR(255) UNIQUE,
+  oauth_provider ENUM('google','microsoft','local'),
+  is_active BOOLEAN,
+  email_verified BOOLEAN,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+);
+</div>
+
+<h3>service_categories Table</h3>
+<div class="code">
+CREATE TABLE service_categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  category_name VARCHAR(100) UNIQUE,
+  category_slug VARCHAR(100) UNIQUE,
+  description TEXT,
+  icon VARCHAR(50),
+  display_order INT,
+  is_active BOOLEAN,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+);
+</div>
+
+<h3>pricing_items Table</h3>
+<div class="code">
+CREATE TABLE pricing_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  category_id INT,
+  item_name VARCHAR(255),
+  item_slug VARCHAR(255),
+  service_type ENUM('iron','wash_iron','roll_press',
+                   'dry_clean','premium_wash','steam_iron'),
+  price DECIMAL(10,2),
+  gender_category ENUM('common','men','women','kids'),
+  description TEXT,
+  is_popular BOOLEAN,
+  is_active BOOLEAN,
+  display_order INT,
+  FOREIGN KEY (category_id) REFERENCES service_categories(id)
+);
+</div>
+
+<h3>orders Table</h3>
+<div class="code">
+CREATE TABLE orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  subtotal DECIMAL(10,2),
+  tax DECIMAL(10,2),
+  total DECIMAL(10,2),
+  order_status ENUM('pending','confirmed','processing',
+                    'ready','delivered','cancelled'),
+  payment_status ENUM('pending','paid','failed','refunded'),
+  delivery_date DATE,
+  pickup_date DATE,
+  notes TEXT,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+</div>
+
+<h3>order_items Table</h3>
+<div class="code">
+CREATE TABLE order_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT,
+  item_id INT,
+  item_name VARCHAR(255),
+  quantity INT,
+  price DECIMAL(10,2),
+  service_type VARCHAR(50),
+  subtotal DECIMAL(10,2),
+  FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+</div>
+
+<h3>Other Tables</h3>
+<ul>
+<li><strong>otp_verification</strong> - OTP codes with expiry</li>
+<li><strong>login_attempts</strong> - Security logging</li>
+<li><strong>user_sessions</strong> - JWT tokens with IP tracking</li>
+<li><strong>password_reset_tokens</strong> - Reset tokens</li>
+</ul>
+
+<h2>9. 🔐 Authentication & Authorization</h2>
+
+<h3>Registration Flow</h3>
+<ol>
+<li>POST /api/send-otp → Generate OTP → Email OTP</li>
+<li>POST /api/verify-otp → Validate OTP → Mark verified</li>
+<li>POST /api/register → Check OTP → Hash password → Create user → Welcome email</li>
+</ol>
+
+<h3>Login Flow</h3>
+<ol>
+<li>POST /api/login → Check account lock → Authenticate → Record attempt</li>
+<li>Generate: Access token (24h) + Refresh token (30d)</li>
+<li>Create session in database</li>
+<li>Return tokens + user object</li>
+</ol>
+
+<h3>Google OAuth Flow</h3>
+<ol>
+<li>Frontend gets Google ID token</li>
+<li>Backend verifies token with Google</li>
+<li>Check if email exists:
+  <ul>
+    <li>Yes: Link Google ID</li>
+    <li>No: Create new user</li>
+  </ul>
+</li>
+<li>Generate JWT tokens and return</li>
+</ol>
+
+<h3>Protected Route Access</h3>
+<ol>
+<li>Client sends: Authorization: Bearer &lt;token&gt;</li>
+<li>@token_required decorator extracts token</li>
+<li>Verify with JWT service</li>
+<li>Add request.current_user (user_id, email, username)</li>
+<li>Route handler executes</li>
+</ol>
+
+<h2>10. 🛡️ Security Features</h2>
+
+<h3>Rate Limiting</h3>
+<ul>
+<li><strong>OTP:</strong> 5 requests per 10 minutes per email</li>
+<li><strong>Login:</strong> 5 attempts per 15 minutes (account lock)</li>
+<li><strong>Password Reset:</strong> 3 requests per 1 hour per email</li>
+</ul>
+
+<h3>Password Security</h3>
+<ul>
+<li>Bcrypt hashing with auto-generated salt</li>
+<li>8-50 characters, min 1 special character</li>
+<li>No spaces allowed</li>
+<li>Old password verification on change</li>
+</ul>
+
+<h3>Session Management</h3>
+<ul>
+<li>Max 5 concurrent sessions per user</li>
+<li>Session expiry tracking</li>
+<li>IP address and user agent logging</li>
+<li>Token stored in database</li>
+<li>Logout from all devices option</li>
+</ul>
+
+<h3>SQL Injection Prevention</h3>
+<ul>
+<li>Parameterized queries only</li>
+<li>MySQL connector auto-escaping</li>
+<li>No string concatenation</li>
+</ul>
+
+<h3>File Upload Security</h3>
+<ul>
+<li>Extension whitelist (images only)</li>
+<li>5MB file size limit</li>
+<li>Image validation with PIL</li>
+<li>Unique UUID filenames</li>
+</ul>
+
+<h2>11. 📊 API Response Structure</h2>
+
+<h3>Success Response</h3>
+<div class="code">
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": { ... },
+  "count": 10
+}
+</div>
+
+<h3>Error Response</h3>
+<div class="code">
+{
+  "success": false,
+  "message": "Error description",
+  "errors": {
+    "field": "Error message"
+  }
+}
+</div>
+
+<h3>Authentication Response</h3>
+<div class="code">
+{
+  "success": true,
+  "message": "Login successful",
+  "user": { ... },
+  "access_token": "jwt...",
+  "refresh_token": "jwt...",
+  "token_type": "Bearer",
+  "expires_in": 86400
+}
+</div>
+
+<h2>12. ⚙️ Environment Configuration</h2>
+
+<h3>Required .env Variables</h3>
+<div class="code">
+# App Configuration
+APP_NAME=Quick Laundry
+APP_URL=http://localhost:3000
+SECRET_KEY=your-secret-key-here
+
+# Database
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your-password
+DB_NAME=laundry_db
+
+# Email (Gmail)
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_DEFAULT_SENDER=your-email@gmail.com
+
+# JWT
+JWT_SECRET_KEY=your-jwt-secret
+JWT_ACCESS_TOKEN_EXPIRES=24
+JWT_REFRESH_TOKEN_EXPIRES=30
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/google/callback
+
+# Security
+MAX_LOGIN_ATTEMPTS=5
+LOGIN_LOCKOUT_MINUTES=15
+OTP_EXPIRY_MINUTES=10
+OTP_MAX_ATTEMPTS=5
+MAX_SESSIONS_PER_USER=5
+
+# Uploads
+UPLOAD_FOLDER=uploads
+</div>
+
+<h2>13. 🚀 Deployment Guide</h2>
+
+<h3>Pre-Deployment Checklist</h3>
+<ol>
+<li>✅ Set FLASK_ENV=production</li>
+<li>✅ Change SECRET_KEY and JWT_SECRET_KEY to strong random values</li>
+<li>✅ Use production MySQL database</li>
+<li>✅ Enable HTTPS/SSL</li>
+<li>✅ Set Gmail app password (not regular password)</li>
+<li>✅ Configure real CORS origins (remove wildcard)</li>
+<li>✅ Set up cloud file storage (AWS S3 recommended)</li>
+<li>✅ Enable production logging to files</li>
+<li>✅ Set up cron jobs for cleanup tasks</li>
+<li>✅ Use Gunicorn/uWSGI (not Flask dev server)</li>
+</ol>
+
+<h3>Cron Jobs (Required)</h3>
+<div class="code">
+# Run daily at 2 AM
+0 2 * * * python -c "from services.otp_service import OTPService; OTPService.cleanup_expired_otps()"
+
+# Run daily at 3 AM
+0 3 * * * python -c "from services.session_service import SessionService; SessionService.cleanup_expired_sessions()"
+
+# Run daily at 4 AM
+0 4 * * * python -c "from services.password_reset_service import PasswordResetService; PasswordResetService.cleanup_expired_tokens()"
+</div>
+
+<h3>Production Server Setup</h3>
+<div class="code">
+# Install Gunicorn
+pip install gunicorn
+
+# Run with Gunicorn
+gunicorn -w 4 -b 0.0.0.0:3000 app:app
+
+# With systemd service
+[Unit]
+Description=Quick Laundry API
+After=network.target
+
+[Service]
+User=www-data
+WorkingDirectory=/path/to/app
+Environment="PATH=/path/to/venv/bin"
+ExecStart=/path/to/venv/bin/gunicorn -w 4 -b 0.0.0.0:3000 app:app
+
+[Install]
+WantedBy=multi-user.target
+</div>
+
+<h3>Nginx Reverse Proxy</h3>
+<div class="code">
+server {
+    listen 80;
+    server_name api.quicklaundry.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location /uploads {
+        alias /path/to/uploads;
+    }
+}
+</div>
+
+<h2>14. 📝 Key Business Logic</h2>
+
+<h3>Order Creation Process</h3>
+<ol>
+<li>Validate items array (minimum 1 item required)</li>
+<li>Calculate subtotal: sum(item.price × item.quantity)</li>
+<li>Calculate tax: subtotal × tax_rate</li>
+<li>Calculate total: subtotal + tax</li>
+<li>Begin database transaction</li>
+<li>Insert order record</li>
+<li>Insert all order_items</li>
+<li>Commit transaction</li>
+<li>Return order with items</li>
+</ol>
+
+<h3>Order Status Workflow</h3>
+<div class="flow-diagram">
+<strong>pending</strong> → <strong>confirmed</strong> → <strong>processing</strong> → <strong>ready</strong> → <strong>delivered</strong>
+<br>↓<br>
+<strong>cancelled</strong> (only from pending/confirmed)
+</div>
+
+<h3>Payment Status Workflow</h3>
+<div class="flow-diagram">
+<strong>pending</strong> → <strong>paid</strong> → <strong>refunded</strong> (if cancelled)
+<br>↓<br>
+<strong>failed</strong>
+</div>
+
+<h2>15. 🔍 Error Handling</h2>
+
+<h3>Common Error Codes</h3>
+<table>
+<tr><th>Code</th><th>Description</th><th>Example</th></tr>
+<tr><td>400</td><td>Bad Request</td><td>Invalid input, validation errors</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>Missing/invalid token</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>Accessing other user's data</td></tr>
+<tr><td>404</td><td>Not Found</td><td>Resource doesn't exist</td></tr>
+<tr><td>405</td><td>Method Not Allowed</td><td>Wrong HTTP method</td></tr>
+<tr><td>429</td><td>Too Many Requests</td><td>Rate limit exceeded</td></tr>
+<tr><td>500</td><td>Internal Server Error</td><td>Unexpected server error</td></tr>
+<tr><td>503</td><td>Service Unavailable</td><td>Database connection failed</td></tr>
+</table>
+
+<h2>16. 📚 Additional Resources</h2>
+
+<h3>Dependencies Reference</h3>
+<ul>
+<li><strong>Flask:</strong> https://flask.palletsprojects.com/</li>
+<li><strong>PyJWT:</strong> https://pyjwt.readthedocs.io/</li>
+<li><strong>Bcrypt:</strong> https://github.com/pyca/bcrypt/</li>
+<li><strong>Pillow:</strong> https://pillow.readthedocs.io/</li>
+<li><strong>MySQL Connector:</strong> https://dev.mysql.com/doc/connector-python/</li>
+</ul>
+
+<h3>Best Practices</h3>
+<ul>
+<li>Always use parameterized queries</li>
+<li>Never store plain text passwords</li>
+<li>Validate all user input</li>
+<li>Use HTTPS in production</li>
+<li>Implement proper error logging</li>
+<li>Keep dependencies updated</li>
+<li>Use environment variables for secrets</li>
+<li>Implement request rate limiting</li>
+<li>Regular database backups</li>
+<li>Monitor server logs</li>
+</ul>
+
+<h2>17. 🐛 Troubleshooting</h2>
+
+<h3>Common Issues</h3>
+
+<div class="warning-box">
+<strong>Issue:</strong> Database connection failed<br>
+<strong>Solution:</strong> Check DB credentials in .env, verify MySQL is running
+</div>
+
+<div class="warning-box">
+<strong>Issue:</strong> CORS errors<br>
+<strong>Solution:</strong> Verify CORS_ORIGINS in config, check preflight OPTIONS handling
+</div>
+
+<div class="warning-box">
+<strong>Issue:</strong> JWT token expired<br>
+<strong>Solution:</strong> Use refresh token endpoint, check token expiry settings
+</div>
+
+<div class="warning-box">
+<strong>Issue:</strong> Email not sending<br>
+<strong>Solution:</strong> Use Gmail app password, enable "Less secure app access"
+</div>
+
+<div class="warning-box">
+<strong>Issue:</strong> File upload fails<br>
+<strong>Solution:</strong> Check upload folder permissions, verify file size limits
+</div>
+
+<h2>📞 Support & Contact</h2>
+<div class="info-box">
+<p>This documentation provides complete technical reference for the Quick Laundry Backend API.</p>
+<p><strong>Version:</strong> 1.0.0</p>
+<p><strong>Last Updated:</strong> ${new Date().toLocaleDateString()}</p>
+<p><strong>Framework:</strong> Flask 3.0.0</p>
+<p><strong>Database:</strong> MySQL 8.2.0</p>
+</div>
+
+</body>
+</html>`
+
+      // Create blob and download
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Quick-Laundry-Backend-Documentation.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setGenerating(false);
+      setGenerated(true);
+
+      // Reset after 3 seconds
+      setTimeout(() => setGenerated(false), 3000);
+    }, 1000);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white">
+            <div className="flex items-center justify-center mb-4">
+              <FileText className="w-16 h-16" />
+            </div>
+            <h1 className="text-4xl font-bold text-center mb-2">
+              Quick Laundry Backend Documentation
+            </h1>
+            <p className="text-center text-blue-100">
+              Complete Technical Reference PDF Generator
+            </p>
+          </div>
+
+          {/* Content */}
+          <div className="p-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                📋 Documentation Includes:
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  'Project Overview & Architecture',
+                  'Complete File Structure',
+                  'Models Layer (User, Pricing, Orders)',
+                  'API Endpoints Documentation',
+                  'Services Layer (Email, JWT, OAuth)',
+                  'Database Schema (All Tables)',
+                  'Authentication & Authorization Flows',
+                  'Security Features & Best Practices',
+                  'Environment Configuration',
+                  'Deployment Guide',
+                  'Error Handling & Troubleshooting',
+                  'Code Examples & Snippets'
+                ].map((item, index) => (
+                  <div key={index} className="flex items-start space-x-2">
+                    <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 mb-8 p-6 bg-gray-50 rounded-lg">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-600">17</div>
+                <div className="text-sm text-gray-600">Sections</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-indigo-600">50+</div>
+                <div className="text-sm text-gray-600">Pages</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-600">100%</div>
+                <div className="text-sm text-gray-600">Complete</div>
+              </div>
+            </div>
+
+            {/* Generate Button */}
+            <button
+              onClick={generatePDF}
+              disabled={generating}
+              className={`w-full py-4 rounded-lg font-bold text-lg transition-all transform ${
+                generated
+                  ? 'bg-green-500 hover:bg-green-600'
+                  : generating
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:scale-105'
+              } text-white shadow-lg flex items-center justify-center space-x-3`}
+            >
+              {generating ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  <span>Generating Documentation...</span>
+                </>
+              ) : generated ? (
+                <>
+                  <Check className="w-6 h-6" />
+                  <span>Downloaded Successfully!</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-6 h-6" />
+                  <span>Generate & Download HTML Documentation</span>
+                </>
+              )}
+            </button>
+
+            {/* Info Box */}
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-gray-700">
+                <strong>📄 Note:</strong> The documentation will be downloaded as an HTML file that you can:
+              </p>
+              <ul className="text-sm text-gray-600 mt-2 ml-4 space-y-1">
+                <li>• Open directly in any web browser</li>
+                <li>• Convert to PDF using browser's "Print to PDF" feature</li>
+                <li>• Share with your team for reference</li>
+                <li>• Use for debugging and development</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BackendPDFGenerator;

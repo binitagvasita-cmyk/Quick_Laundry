@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - Quick Laundry</title>
+    
+    <!-- CSS Files in correct order -->
+    <link rel="stylesheet" href="CSS/Header.css">
+    <link rel="stylesheet" href="CSS/Sidebar.css">
+    <link rel="stylesheet" href="CSS/pricing.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Root variables for theme support */
+        :root {
+            --primary-blue: #3b82f6;
+            --dark-blue: #1e40af;
+            --light-blue: #60a5fa;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --border-color: #374151;
+        }
+
+        body {
+            padding-top: 0;
+            margin: 0;
+            min-height: 100vh;
+            /* Beautiful gradient background */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-attachment: fixed;
+        }
+
+        .header-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-content {
+            margin-left: 80px;
+            margin-top: 80px;
+            padding: 32px;
+            min-height: calc(100vh - 80px);
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (min-width: 1025px) {
+            .sidebar:hover ~ .main-content {
+                margin-left: 280px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 0;
+                margin-top: 70px;
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 16px;
+            }
+        }
+
+        #header,
+        #sidebar {
+            position: fixed;
+            z-index: 999;
+        }
+
+        .page-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .page-loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Container -->
+    <div class="header-container" id="header"></div>
+
+    <!-- Sidebar Container -->
+    <div id="sidebar"></div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="pricing-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <div class="page-header-left">
+                        <h1 class="page-title">
+                            <i class="fas fa-tags"></i> Our Services & Pricing
+                        </h1>
+                        <p class="page-subtitle">Choose from our wide range of professional laundry services</p>
+                    </div>
+                    <div class="page-header-right">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search items..." class="search-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Type Filters -->
+            <div class="service-filters-section">
+                <h3 class="filter-section-title">
+                    <i class="fas fa-sliders-h"></i> Select Service
+                </h3>
+                <div class="service-filters">
+                    <button class="service-filter-btn active" data-service="all">
+                        <div class="service-icon">
+                            <i class="fas fa-th-large"></i>
+                        </div>
+                        <span class="service-name">All Services</span>
+                    </button>
+                    <button class="service-filter-btn" data-service="iron">
+                        <div class="service-icon">
+                            <i class="fas fa-iron"></i>
+                        </div>
+                        <span class="service-name">Iron Only</span>
+                    </button>
+                    <button class="service-filter-btn" data-service="wash_iron">
+                        <div class="service-icon">
+                            <i class="fas fa-water"></i>
+                        </div>
+                        <span class="service-name">Wash + Iron</span>
+                    </button>
+                    <button class="service-filter-btn" data-service="steam_press">
+                        <div class="service-icon">
+                            <i class="fas fa-hot-tub"></i>
+                        </div>
+                        <span class="service-name">Steam Press</span>
+                    </button>
+                    <button class="service-filter-btn" data-service="roll_press">
+                        <div class="service-icon">
+                            <i class="fas fa-compress"></i>
+                        </div>
+                        <span class="service-name">Roll Press</span>
+                    </button>
+                    <button class="service-filter-btn" data-service="petrol_wash">
+                        <div class="service-icon">
+                            <i class="fas fa-spray-can"></i>
+                        </div>
+                        <span class="service-name">Petrol Wash</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Gender Filters -->
+            <div class="gender-filters-section">
+                <h3 class="filter-section-title">
+                    <i class="fas fa-users"></i> Category
+                </h3>
+                <div class="gender-filters">
+                    <button class="gender-filter-btn active" data-gender="all">
+                        <i class="fas fa-users"></i>
+                        <span>All Categories</span>
+                    </button>
+                    <button class="gender-filter-btn" data-gender="men">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Men's Wear</span>
+                    </button>
+                    <button class="gender-filter-btn" data-gender="women">
+                        <i class="fas fa-female"></i>
+                        <span>Women's Wear</span>
+                    </button>
+                    <button class="gender-filter-btn" data-gender="common">
+                        <i class="fas fa-tshirt"></i>
+                        <span>Common Items</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Count -->
+            <div class="result-info">
+                <span class="result-count" id="resultCount">Loading...</span>
+            </div>
+
+            <!-- Items Grid -->
+            <div id="itemsGrid" class="main-items-container">
+                <!-- Items will be loaded here dynamically -->
+                <div class="loading-skeleton">
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-state-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 class="empty-state-title">No items found</h3>
+                <p class="empty-state-text">Try adjusting your search or filters to find what you're looking for</p>
+                <button class="reset-filters-btn" onclick="resetFilters()">
+                    <i class="fas fa-redo"></i> Reset Filters
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading pricing...</p>
+    </div>
+
+    <!-- Move Item Modal -->
+    <div class="move-modal" id="moveModal">
+        <div class="move-modal-content">
+            <div class="move-modal-header">
+                <h3 class="move-modal-title">
+                    <i class="fas fa-exchange-alt"></i> Move Item to Service
+                </h3>
+                <button class="move-modal-close" onclick="closeMoveModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="move-modal-body">
+                <p class="move-item-name" id="moveItemName"></p>
+                <div class="service-options" id="serviceOptions">
+                    <!-- Service options will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        console.log('Pricing page loading...');
+
+        // Reset filters function
+        function resetFilters() {
+            if (window.pricingManager) {
+                pricingManager.currentServiceFilter = 'all';
+                pricingManager.currentGenderFilter = 'all';
+                pricingManager.searchTerm = '';
+                pricingManager.applyFilters();
+                
+                document.querySelectorAll('.service-filter-btn, .gender-filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-service="all"]').classList.add('active');
+                document.querySelector('[data-gender="all"]').classList.add('active');
+                document.getElementById('searchInput').value = '';
+            }
+        }
+
+        // Close move modal
+        function closeMoveModal() {
+            document.getElementById('moveModal').classList.remove('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Content Loaded');
+            
+            let headerLoaded = false;
+            let sidebarLoaded = false;
+            
+            function checkAllLoaded() {
+                if (headerLoaded && sidebarLoaded) {
+                    console.log('Header and Sidebar loaded, now loading pricing.js');
+                    loadPricingScript();
+                }
+            }
+
+            // Load Header
+            fetch('Header.html')
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                    return res.text();
+                })
+                .then(data => {
+                    const headerElement = document.getElementById('header');
+                    if (headerElement) {
+                        headerElement.innerHTML = data;
+                        
+                        const headerScript = document.createElement('script');
+                        headerScript.src = 'JS/header.js';
+                        headerScript.onload = () => {
+                            console.log('Header script loaded successfully');
+                            headerLoaded = true;
+                            checkAllLoaded();
+                        };
+                        headerScript.onerror = () => {
+                            console.error('Failed to load header.js');
+                            headerLoaded = true;
+                            checkAllLoaded();
+                        };
+                        document.body.appendChild(headerScript);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading header:', error);
+                    headerLoaded = true;
+                    checkAllLoaded();
+                });
+
+            // Load Sidebar
+            fetch('Sidebar.html')
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                    return res.text();
+                })
+                .then(data => {
+                    const sidebarElement = document.getElementById('sidebar');
+                    if (sidebarElement) {
+                        sidebarElement.innerHTML = data;
+                        
+                        const sidebarScript = document.createElement('script');
+                        sidebarScript.src = 'JS/Sidebar.js';
+                        sidebarScript.onload = () => {
+                            console.log('Sidebar script loaded successfully');
+                            sidebarLoaded = true;
+                            checkAllLoaded();
+                        };
+                        sidebarScript.onerror = () => {
+                            console.error('Failed to load Sidebar.js');
+                            sidebarLoaded = true;
+                            checkAllLoaded();
+                        };
+                        document.body.appendChild(sidebarScript);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading sidebar:', error);
+                    sidebarLoaded = true;
+                    checkAllLoaded();
+                });
+
+            function loadPricingScript() {
+                const pricingScript = document.createElement('script');
+                pricingScript.src = 'JS/pricing.js';
+                pricingScript.onload = () => {
+                    console.log('Pricing script loaded successfully');
+                };
+                pricingScript.onerror = () => {
+                    console.error('Failed to load pricing.js');
+                };
+                document.body.appendChild(pricingScript);
+            }
+        });
+
+        // Handle theme initialization
+        const initTheme = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        };
+
+        initTheme();
+
+        window.addEventListener('themeChanged', (e) => {
+            document.documentElement.setAttribute('data-theme', e.detail.theme);
+        });
+    </script>
+</body>
+</html>

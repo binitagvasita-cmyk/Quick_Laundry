@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="CSS/Header.css" />
+    <link rel="stylesheet" href="CSS/Sidebar.css" />
+    <link rel="stylesheet" href="CSS/iron.css" />
+    
+    <title>Iron Services - Quick Laundry</title>
+</head>
+<body>
+    <!-- HEADER (Loaded via JS) -->
+    <div id="header"></div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-profile"></div>
+        <nav class="sidebar-nav"></nav>
+        <div class="sidebar-footer"></div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <h1>Professional Iron Services</h1>
+            <p>Get your clothes perfectly pressed and wrinkle-free</p>
+        </div>
+
+        <!-- BENEFITS OF IRON SERVICE -->
+        <section class="card benefits-card">
+            <h2>Why Choose Our Iron Service?</h2>
+            <ul class="benefit-list fancy-list">
+                <li>👔 Professional pressing for all garment types</li>
+                <li>⚡ Fast turnaround - Normal & Express options</li>
+                <li>✨ Wrinkle-free, crisp finish guaranteed</li>
+                <li>🛡️ Fabric-safe temperature control</li>
+                <li>💰 Affordable pricing with quality assurance</li>
+                <li>🏠 Convenient pickup and delivery service</li>
+            </ul>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section class="card">
+            <h2>How Our Iron Service Works</h2>
+            <p>Our professional iron service ensures your clothes look their best with careful attention to detail and fabric-specific care.</p>
+            
+            <div class="grid-3">
+                <div class="info-box">
+                    <div class="info-icon">📦</div>
+                    <div class="info-title">Schedule Pickup</div>
+                    <div class="info-desc">We collect your clothes</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-icon">🔥</div>
+                    <div class="info-title">Professional Pressing</div>
+                    <div class="info-desc">Expert iron service</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-icon">🚚</div>
+                    <div class="info-title">Fast Delivery</div>
+                    <div class="info-desc">Delivered to your door</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SERVICE IMAGES -->
+        <section class="card">
+            <h2>Our Iron Service Gallery</h2>
+            <div class="image-grid">
+                <div class="image-box">
+                    <img src="../Images/iron1.jpg" alt="Iron Service 1" />
+                    <div class="image-overlay">Professional Pressing</div>
+                </div>
+                <div class="image-box">
+                    <img src="../Images/iron2.jpg" alt="Iron Service 2" />
+                    <div class="image-overlay">Quality Finish</div>
+                </div>
+                <div class="image-box">
+                    <img src="../Images/iron4.jpg" alt="Iron Service 3" />
+                    <div class="image-overlay">Expert Care</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICE TABLE -->
+        <section class="card pricing-section">
+            <h2>Iron Service Pricing</h2>
+            <p class="section-description">Select your items and quantity to calculate total cost</p>
+
+            <div class="table-wrapper">
+                <table class="price-table">
+                    <thead>
+                        <tr>
+                            <th>Service Type</th>
+                            <th>Price / Piece</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                            <th>Delivery Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="service-name">
+                                    <span class="service-icon">👔</span>
+                                    <span>Normal Iron</span>
+                                </div>
+                            </td>
+                            <td class="price-cell">₹10</td>
+                            <td>
+                                <div class="qty-control">
+                                    <button class="qty-btn" onclick="decrementQty('normalQty')">-</button>
+                                    <input
+                                        type="number"
+                                        id="normalQty"
+                                        min="0"
+                                        value="0"
+                                        class="qty-input"
+                                        oninput="calculateTotal()"
+                                        data-price="10"
+                                        data-target="normalTotal"
+                                        data-service="Normal Iron"
+                                    />
+                                    <button class="qty-btn" onclick="incrementQty('normalQty')">+</button>
+                                </div>
+                            </td>
+                            <td class="total-cell">₹<span id="normalTotal">0</span></td>
+                            <td class="time-cell">
+                                <span class="time-badge normal">24 Hours</span>
+                            </td>
+                        </tr>
+
+                        <tr class="urgent-row">
+                            <td>
+                                <div class="service-name">
+                                    <span class="service-icon">⚡</span>
+                                    <span>Urgent Iron</span>
+                                </div>
+                            </td>
+                            <td class="price-cell">₹15</td>
+                            <td>
+                                <div class="qty-control">
+                                    <button class="qty-btn" onclick="decrementQty('urgentQty')">-</button>
+                                    <input
+                                        type="number"
+                                        id="urgentQty"
+                                        min="0"
+                                        value="0"
+                                        class="qty-input"
+                                        oninput="calculateTotal()"
+                                        data-price="15"
+                                        data-target="urgentTotal"
+                                        data-service="Urgent Iron"
+                                    />
+                                    <button class="qty-btn" onclick="incrementQty('urgentQty')">+</button>
+                                </div>
+                            </td>
+                            <td class="total-cell">₹<span id="urgentTotal">0</span></td>
+                            <td class="time-cell">
+                                <span class="time-badge urgent">Same Day</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ORDER SUMMARY -->
+            <div class="order-summary">
+                <div class="summary-row">
+                    <span class="summary-label">Total Items:</span>
+                    <span class="summary-value" id="totalItems">0</span>
+                </div>
+                <div class="summary-row grand-total-row">
+                    <span class="summary-label">Grand Total:</span>
+                    <span class="summary-value" id="grandTotal">₹0</span>
+                </div>
+            </div>
+
+            <!-- PLACE ORDER BUTTON -->
+            <div class="order-btn-wrapper">
+                <button class="place-order-btn" id="placeOrderBtn" onclick="placeOrder()">
+                    <span class="btn-icon">🧾</span>
+                    <span>Place Order</span>
+                    <span class="btn-arrow">→</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- SUCCESS MODAL -->
+    <div class="modal" id="successModal">
+        <div class="modal-content success-modal">
+            <div class="modal-icon success">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                    <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="4"/>
+                    <path d="M20 32L28 40L44 24" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>Order Placed Successfully!</h2>
+            <p id="orderDetails">Your iron service order has been confirmed.</p>
+            <button class="modal-btn" onclick="closeModal()">Continue Shopping</button>
+        </div>
+    </div>
+
+    <!-- ERROR MODAL -->
+    <div class="modal" id="errorModal">
+        <div class="modal-content error-modal">
+            <div class="modal-icon error">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                    <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="4"/>
+                    <path d="M32 20V36M32 44H32.02" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h2 id="errorTitle">Error</h2>
+            <p id="errorMessage">Something went wrong. Please try again.</p>
+            <button class="modal-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Load Header -->
+    <script>
+        fetch("Header.html")
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("header").innerHTML = html;
+            })
+            .catch(error => console.error("Error loading header:", error));
+    </script>
+
+    <!-- Scripts -->
+    <script src="JS/Header.js"></script>
+    <script src="JS/Sidebar.js"></script>
+    <script src="JS/iron.js"></script>
+</body>
+</html>

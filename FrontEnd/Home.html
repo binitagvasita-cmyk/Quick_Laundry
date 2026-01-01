@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laundrywala - Dashboard</title>
+    <link rel="stylesheet" href="CSS/Header.css" />
+    <link rel="stylesheet" href="CSS/Sidebar.css" />
+    <style>
+      /* Background */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        background-color: var(--bg-primary);
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('../Images/homebg2.jpeg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        z-index: -2;
+      }
+
+      [data-theme="light"] body::before {
+        opacity: 0.3;
+      }
+
+      [data-theme="dark"] body::before {
+        opacity: 0.4;
+        filter: brightness(0.7);
+      }
+
+      #main-content {
+        margin-left: 0;
+        margin-top: 80px;
+        padding: 20px;
+        min-height: calc(100vh - 80px);
+        transition: margin-left 0.3s ease;
+      }
+
+      body.sidebar-active #main-content {
+        margin-left: 280px;
+      }
+
+      @media (max-width: 968px) {
+        #main-content {
+          margin-top: 70px;
+          padding: 15px;
+        }
+
+        body.sidebar-active #main-content {
+          margin-left: 0;
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: -1000px 0;
+        }
+        100% {
+          background-position: 1000px 0;
+        }
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      /* Hero Section */
+      .hero-section {
+        max-width: 1200px;
+        margin: 0 auto 50px;
+        padding: 60px 30px;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(245, 250, 255, 0.98) 100%);
+        border-radius: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(20px);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      [data-theme="dark"] .hero-section {
+        background: linear-gradient(135deg, rgba(30, 30, 40, 0.98) 0%, rgba(20, 25, 35, 0.98) 100%);
+      }
+
+      .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent 30%, rgba(33, 150, 243, 0.1) 50%, transparent 70%);
+        animation: shimmer 3s infinite;
+      }
+
+      .hero-section h1 {
+        color: #2196F3;
+        font-size: 52px;
+        margin-bottom: 20px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 50%, #0D47A1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-section .tagline {
+        color: var(--text-secondary);
+        font-size: 20px;
+        margin-bottom: 40px;
+        font-weight: 400;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-stats {
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+        margin-top: 40px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
+      }
+
+      .stat-item {
+        text-align: center;
+        animation: fadeInUp 0.8s ease-out 0.6s both;
+        transition: transform 0.3s ease;
+        cursor: default;
+      }
+
+      .stat-item:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-number {
+        font-size: 48px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: block;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-top: 8px;
+        font-weight: 600;
+      }
+
+      /* Services Section */
+      .services-section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .section-header {
+        text-align: center;
+        margin-bottom: 60px;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      .section-title {
+        font-size: 42px;
+        color: var(--text-primary);
+        margin-bottom: 15px;
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+      }
+
+      .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, #2196F3, #1976D2);
+        border-radius: 2px;
+      }
+
+      .section-subtitle {
+        font-size: 18px;
+        color: var(--text-secondary);
+        margin-top: 25px;
+      }
+
+      .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 35px;
+        margin-top: 50px;
+      }
+
+      .service-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 250, 0.98) 100%);
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      [data-theme="dark"] .service-card {
+        background: linear-gradient(135deg, rgba(40, 40, 50, 0.98) 0%, rgba(30, 30, 40, 0.98) 100%);
+      }
+
+      .service-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, transparent 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      .service-card:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 20px 50px rgba(33, 150, 243, 0.25);
+      }
+
+      .service-card:hover::before {
+        opacity: 1;
+      }
+
+      .service-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+      }
+
+      .service-card:hover .service-image {
+        transform: scale(1.1);
+      }
+
+      .service-content {
+        padding: 35px;
+        text-align: center;
+        position: relative;
+      }
+
+      .service-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #2196F3, #1976D2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        margin: -55px auto 25px;
+        box-shadow: 0 10px 30px rgba(33, 150, 243, 0.4);
+        transition: all 0.3s ease;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      .service-card:hover .service-icon {
+        transform: rotate(360deg) scale(1.1);
+        box-shadow: 0 15px 40px rgba(33, 150, 243, 0.6);
+      }
+
+      .service-card h3 {
+        color: var(--text-primary);
+        font-size: 26px;
+        margin-bottom: 18px;
+        font-weight: 700;
+      }
+
+      .service-card p {
+        color: var(--text-secondary);
+        font-size: 15px;
+        line-height: 1.8;
+        margin-bottom: 28px;
+      }
+
+      .service-btn {
+        display: inline-block;
+        padding: 14px 35px;
+        background: linear-gradient(135deg, #2196F3, #1976D2);
+        color: white;
+        text-decoration: none;
+        border-radius: 30px;
+        font-size: 15px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .service-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+      }
+
+      .service-btn:hover::before {
+        left: 100%;
+      }
+
+      .service-btn:hover {
+        background: linear-gradient(135deg, #1976D2, #0D47A1);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(33, 150, 243, 0.5);
+      }
+
+      /* How It Works */
+      .how-it-works {
+        max-width: 1200px;
+        margin: 80px auto;
+        padding: 60px 40px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(245, 250, 255, 0.98) 100%);
+        border-radius: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      [data-theme="dark"] .how-it-works {
+        background: linear-gradient(135deg, rgba(30, 30, 40, 0.98) 0%, rgba(20, 25, 35, 0.98) 100%);
+      }
+
+      .how-it-works h2 {
+        text-align: center;
+        font-size: 42px;
+        color: var(--text-primary);
+        margin-bottom: 50px;
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+      }
+
+      .how-it-works h2::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #2196F3, #1976D2);
+        border-radius: 2px;
+      }
+
+      .steps-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        margin-top: 30px;
+      }
+
+      .step {
+        text-align: center;
+        padding: 25px;
+        transition: transform 0.3s ease;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      .step:hover {
+        transform: translateY(-10px);
+      }
+
+      .step-number {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #2196F3, #1976D2);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 800;
+        margin: 0 auto 25px;
+        box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .step-number::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 3px solid #2196F3;
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      .step:hover .step-number {
+        transform: scale(1.1);
+        box-shadow: 0 12px 35px rgba(33, 150, 243, 0.6);
+      }
+
+      .step:hover .step-number::after {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+
+      .step h4 {
+        color: var(--text-primary);
+        font-size: 22px;
+        margin-bottom: 12px;
+        font-weight: 700;
+      }
+
+      .step p {
+        color: var(--text-secondary);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      /* Add stagger animation delays */
+      .service-card:nth-child(1) { animation-delay: 0.1s; }
+      .service-card:nth-child(2) { animation-delay: 0.2s; }
+      .service-card:nth-child(3) { animation-delay: 0.3s; }
+
+      .step:nth-child(1) { animation-delay: 0.1s; }
+      .step:nth-child(2) { animation-delay: 0.2s; }
+      .step:nth-child(3) { animation-delay: 0.3s; }
+      .step:nth-child(4) { animation-delay: 0.4s; }
+
+      /* Responsive Design */
+      /* Footer */
+      .footer {
+        max-width: 1200px;
+        margin: 60px auto 0;
+        padding: 50px 30px 30px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(245, 250, 255, 0.98) 100%);
+        border-radius: 30px 30px 0 0;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      [data-theme="dark"] .footer {
+        background: linear-gradient(135deg, rgba(30, 30, 40, 0.98) 0%, rgba(20, 25, 35, 0.98) 100%);
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        margin-bottom: 40px;
+      }
+
+      .footer-section h3 {
+        color: var(--text-primary);
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        position: relative;
+        padding-bottom: 10px;
+      }
+
+      .footer-section h3::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(90deg, #2196F3, #1976D2);
+        border-radius: 2px;
+      }
+
+      .footer-section p {
+        color: var(--text-secondary);
+        line-height: 1.7;
+        margin-bottom: 15px;
+      }
+
+      .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .footer-links li {
+        margin-bottom: 12px;
+      }
+
+      .footer-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        position: relative;
+      }
+
+      .footer-links a::before {
+        content: '→';
+        position: absolute;
+        left: -20px;
+        opacity: 0;
+        transition: all 0.3s ease;
+        color: #2196F3;
+      }
+
+      .footer-links a:hover {
+        color: #2196F3;
+        transform: translateX(5px);
+      }
+
+      .footer-links a:hover::before {
+        opacity: 1;
+        left: -15px;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+      }
+
+      .social-links a {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #2196F3, #1976D2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+      }
+
+      .social-links a:hover {
+        transform: translateY(-5px) rotate(360deg);
+        box-shadow: 0 8px 25px rgba(33, 150, 243, 0.5);
+      }
+
+      .footer-bottom {
+        padding-top: 30px;
+        border-top: 2px solid rgba(33, 150, 243, 0.1);
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 14px;
+      }
+
+      .footer-bottom p {
+        margin: 5px 0;
+      }
+
+      .footer-bottom a {
+        color: #2196F3;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .footer-bottom a:hover {
+        color: #1976D2;
+      }
+
+      @media (max-width: 768px) {
+        .hero-section {
+          padding: 40px 20px;
+        }
+
+        .hero-section h1 {
+          font-size: 36px;
+        }
+
+        .hero-section .tagline {
+          font-size: 16px;
+        }
+
+        .section-title {
+          font-size: 32px;
+        }
+
+        .services-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-stats {
+          gap: 35px;
+        }
+
+        .stat-number {
+          font-size: 36px;
+        }
+
+        .footer-content {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+
+        .footer {
+          padding: 40px 20px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header"></div>
+    <div id="sidebar"></div>
+
+    <main id="main-content">
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <h1>Welcome to Quick Laundry</h1>
+        <p class="tagline">Your Trusted Online Laundry Service - Order, Clean, Deliver</p>
+        
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-number">500+</span>
+            <span class="stat-label">Happy Customers</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">24hrs</span>
+            <span class="stat-label">Quick Turnaround</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Quality Service</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services Section -->
+      <div class="services-section">
+        <div class="section-header">
+          <h2 class="section-title">Our Services</h2>
+          <p class="section-subtitle">Simple, Efficient, and Reliable Laundry Solutions</p>
+        </div>
+
+        <div class="services-grid">
+          <!-- Online Orders -->
+          <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=600&h=250&fit=crop" alt="Online Orders" class="service-image">
+            <div class="service-content">
+              <div class="service-icon">📱</div>
+              <h3>Online Orders</h3>
+              <p>
+                Place your laundry orders easily through our platform. Schedule pickups, track your orders in real-time, and manage everything from one dashboard.
+              </p>
+              <a href="place_service.html" class="service-btn">Place Order →</a>
+            </div>
+          </div>
+
+          <!-- Laundry Services -->
+          <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=600&h=250&fit=crop" alt="Laundry Services" class="service-image">
+            <div class="service-content">
+              <div class="service-icon">🧺</div>
+              <h3>Professional Cleaning</h3>
+              <p>
+                We provide basic laundry services including washing, drying, and folding. Your clothes are handled with care using quality detergents and equipment.
+              </p>
+              <a href="#" class="service-btn">View Services →</a>
+            </div>
+          </div>
+
+          <!-- Delivery Service -->
+          <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=600&h=250&fit=crop" alt="Delivery" class="service-image">
+            <div class="service-content">
+              <div class="service-icon">🚚</div>
+              <h3>Fast Delivery</h3>
+              <p>
+                Convenient pickup and delivery at your doorstep. Track your delivery in real-time and get notified when your fresh, clean laundry is on its way.
+              </p>
+              <a href="#" class="service-btn">Track Delivery →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- How It Works -->
+      <div class="how-it-works">
+        <h2>How It Works</h2>
+        <div class="steps-container">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h4>Place Order Online</h4>
+            <p>Schedule a pickup through our easy-to-use platform</p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h4>We Pick Up</h4>
+            <p>Our team collects your laundry from your location</p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h4>Professional Clean</h4>
+            <p>We wash, dry, and fold your clothes with care</p>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <h4>Fast Delivery</h4>
+            <p>Your fresh laundry delivered back to your door</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Quick Laundry</h3>
+            <p>Your trusted partner for professional laundry services. We make life easier with fast, reliable, and affordable cleaning solutions.</p>
+            <div class="social-links">
+              <a href="#" aria-label="Facebook">📘</a>
+              <a href="#" aria-label="Instagram">📷</a>
+              <a href="#" aria-label="Whatsaap">🐦</a>
+              <a href="#" aria-label="LinkedIn">💼</a>
+            </div>
+          </div>
+
+          <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul class="footer-links">
+              <li><a href="Home.html">Home</a></li>
+              <li><a href="Services.html">Services</a></li>
+              <li><a href="pricing.html">Pricing</a></li>
+              <li><a href="#">Track Order</a></li>
+              <li><a href="About_us.html">About Us</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h3>Services</h3>
+            <ul class="footer-links">
+              <li><a href="iron.html">ironing</a></li>
+              <li><a href="dry_clean.html">Dry Cleaning</a></li>
+              <li><a href="petrol_wash.html">Petrol_wash</a></li>
+              <li><a href="pickup.html">Pickup & Delivery</a></li>
+              <li><a href="roll_press.html">roll_press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h3>Contact Us</h3>
+            <ul class="footer-links">
+              <li>📞 +91 9173576732</li>
+              <li>✉️ quicklaundry0212@gmail.com</li>
+              <li>📍 Ahmedabad, Gujarat, India</li>
+              <li>🕐 Mon - Sat: 8AM - 10PM</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; 2025 Quick Laundry. All rights reserved.</p>
+          <p>Made with ❤️ in Ahmedabad | <a href="privacy_policy.html">Privacy Policy</a> | <a href="Services.html">Terms of Service</a></p>
+        </div>
+      </footer>
+    </main>
+    
+    <script src="JS/Home.js"></script>
+  </body>
+</html>

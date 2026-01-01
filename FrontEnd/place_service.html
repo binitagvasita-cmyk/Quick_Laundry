@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Place Order - Quick Laundry</title>
+    <link rel="stylesheet" href="CSS/Header.css" />
+    <link rel="stylesheet" href="CSS/Sidebar.css" />
+    <link rel="stylesheet" href="CSS/place_service.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar"></div>
+
+    <!-- Main Content -->
+    <main id="main-content">
+      <div class="place-service-container">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="header-content">
+            <h1 class="page-title">Place Your Order</h1>
+            <p class="page-subtitle">
+              Select your laundry items and services to get started
+            </p>
+          </div>
+          <div class="order-summary-badge" id="cartBadge">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M9 2C9 1.44772 9.44772 1 10 1H14C14.5523 1 15 1.44772 15 2V3H20C20.5523 3 21 3.44772 21 4C21 4.55228 20.5523 5 20 5H19L18.2761 17.1425C18.1408 19.2529 16.3814 21 14.2679 21H9.73213C7.61864 21 5.85924 19.2529 5.72388 17.1425L5 5H4C3.44772 5 3 4.55228 3 4C3 3.44772 3.44772 3 4 3H9V2Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span id="cartCount">0</span>
+          </div>
+        </div>
+
+        <!-- Service Type Filter -->
+        <div class="service-filter-section">
+          <div class="filter-header">
+            <h2 class="filter-title">Select Service Type</h2>
+          </div>
+          <div class="service-type-tabs" id="serviceTypeTabs">
+            <button class="service-tab active" data-service="all">
+              All Services
+            </button>
+            <button class="service-tab" data-service="iron">Iron</button>
+            <button class="service-tab" data-service="wash_iron">
+              Wash & Iron
+            </button>
+            <button class="service-tab" data-service="dry_clean">
+              Dry Clean
+            </button>
+            <button class="service-tab" data-service="premium_wash">
+              Premium Wash
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="category-filter-section">
+          <div class="category-chips" id="categoryChips">
+            <button class="category-chip active" data-category="all">
+              All Categories
+            </button>
+            <!-- Dynamic category chips will be inserted here -->
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-section">
+          <div class="search-box">
+            <svg
+              class="search-icon"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <circle
+                cx="9"
+                cy="9"
+                r="7"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path
+                d="M14 14L18 18"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search for items..."
+              class="search-input"
+            />
+            <button class="search-clear" id="searchClear" style="display: none">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M12 4L4 12M4 4L12 12"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Items Grid -->
+        <div class="items-section">
+          <div class="items-grid" id="itemsGrid">
+            <!-- Loading State -->
+            <div class="loading-state" id="loadingState">
+              <div class="loader"></div>
+              <p>Loading services...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                <circle
+                  cx="32"
+                  cy="32"
+                  r="30"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M32 20V32L40 40"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <h3>No Items Found</h3>
+              <p>Try adjusting your filters or search term</p>
+            </div>
+
+            <!-- Items will be dynamically inserted here -->
+          </div>
+        </div>
+
+        <!-- Floating Cart Button (Mobile) -->
+        <button class="floating-cart-btn" id="floatingCartBtn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M9 2C9 1.44772 9.44772 1 10 1H14C14.5523 1 15 1.44772 15 2V3H20C20.5523 3 21 3.44772 21 4C21 4.55228 20.5523 5 20 5H19L18.2761 17.1425C18.1408 19.2529 16.3814 21 14.2679 21H9.73213C7.61864 21 5.85924 19.2529 5.72388 17.1425L5 5H4C3.44772 5 3 4.55228 3 4C3 3.44772 3.44772 3 4 3H9V2Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span class="cart-badge" id="floatingCartCount">0</span>
+        </button>
+      </div>
+
+      <!-- Cart Sidebar -->
+      <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+          <h2>Your Order</h2>
+          <button class="cart-close-btn" id="cartCloseBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M18 6L6 18M6 6L18 18"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div class="cart-content">
+          <!-- Cart Empty State -->
+          <div class="cart-empty" id="cartEmpty">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <circle
+                cx="40"
+                cy="40"
+                r="38"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M30 25H50L52 35H28L30 25Z"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+              />
+              <path
+                d="M28 35L30 55H50L52 35"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+              />
+            </svg>
+            <p>Your cart is empty</p>
+            <span>Add items to get started</span>
+          </div>
+
+          <!-- Cart Items List -->
+          <div class="cart-items" id="cartItems" style="display: none">
+            <!-- Cart items will be dynamically inserted here -->
+          </div>
+        </div>
+
+        <!-- Cart Footer -->
+        <div class="cart-footer" id="cartFooter" style="display: none">
+          <div class="cart-summary">
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span id="subtotalAmount">₹0</span>
+            </div>
+            <div class="summary-row">
+              <span>Tax (5%)</span>
+              <span id="taxAmount">₹0</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total</span>
+              <span id="totalAmount">₹0</span>
+            </div>
+          </div>
+          <button class="place-order-btn" id="placeOrderBtn">
+            Place Order
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path
+                d="M7 3L13 10L7 17"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cart Overlay -->
+      <div class="cart-overlay" id="cartOverlay"></div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="JS/Home.js"></script>
+    <script src="JS/place_service.js"></script>
+  </body>
+</html>

@@ -1,0 +1,575 @@
+/* ============================================
+   PRIVACY POLICY PAGE STYLES
+   Professional Laundry Web Application
+   ============================================ */
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+
+.main-content {
+    margin-left: var(--sidebar-width, 80px);
+    margin-top: var(--header-height, 80px);
+    min-height: calc(100vh - var(--header-height, 80px));
+    padding: 40px 20px;
+    transition: margin-left 0.3s ease;
+}
+
+.privacy-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--bg-primary);
+    border-radius: 16px;
+    padding: 48px;
+    box-shadow: var(--shadow);
+    animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   PRIVACY POLICY HEADER
+   ============================================ */
+
+.privacy-header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.privacy-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.privacy-header h1 {
+    font-size: 36px;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.last-updated {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   PRIVACY INTRODUCTION
+   ============================================ */
+
+.privacy-intro {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 58, 138, 0.05));
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    border-left: 4px solid var(--primary-blue);
+    transition: all 0.3s ease;
+}
+
+.privacy-intro:hover {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    transform: translateX(4px);
+}
+
+.privacy-intro p {
+    color: var(--text-primary);
+    line-height: 1.8;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* ============================================
+   SERVICE DISCLAIMER BOX
+   ============================================ */
+
+.service-disclaimer {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+    border: 2px solid #ef4444;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 32px 0;
+    transition: all 0.3s ease;
+}
+
+.service-disclaimer:hover {
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+    transform: translateY(-2px);
+}
+
+.disclaimer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.disclaimer-icon {
+    width: 40px;
+    height: 40px;
+    background: #ef4444;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+}
+
+.disclaimer-header h3 {
+    color: #ef4444;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.service-disclaimer p {
+    color: var(--text-primary);
+    line-height: 1.8;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+.service-disclaimer ul {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+}
+
+.service-disclaimer li {
+    color: var(--text-primary);
+    padding: 12px 0 12px 32px;
+    position: relative;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.service-disclaimer li:before {
+    content: "⚠";
+    color: #ef4444;
+    font-size: 20px;
+    position: absolute;
+    left: 0;
+    top: 10px;
+}
+
+.service-disclaimer strong {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* ============================================
+   PRIVACY SECTIONS
+   ============================================ */
+
+.privacy-section {
+    margin-bottom: 48px;
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.privacy-section h2 {
+    font-size: 24px;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.privacy-section h2:hover {
+    color: var(--primary-blue);
+}
+
+.section-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.privacy-section h2:hover .section-icon {
+    transform: rotate(360deg) scale(1.1);
+}
+
+.privacy-section p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 16px;
+    font-size: 15px;
+}
+
+.privacy-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.privacy-section li {
+    color: var(--text-secondary);
+    padding: 12px 0 12px 32px;
+    position: relative;
+    line-height: 1.6;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.privacy-section li:hover {
+    color: var(--text-primary);
+    padding-left: 38px;
+}
+
+.privacy-section li:before {
+    content: "•";
+    color: var(--primary-blue);
+    font-size: 24px;
+    position: absolute;
+    left: 12px;
+    top: 8px;
+    transition: all 0.3s ease;
+}
+
+.privacy-section li:hover:before {
+    left: 16px;
+    transform: scale(1.2);
+}
+
+.privacy-section strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* ============================================
+   CONTACT BOX
+   ============================================ */
+
+.contact-box {
+    background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
+    color: white;
+    padding: 32px;
+    border-radius: 12px;
+    margin-top: 48px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s ease;
+}
+
+.contact-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(59, 130, 246, 0.4);
+}
+
+.contact-box h3 {
+    font-size: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.contact-box p {
+    font-size: 16px;
+    margin-bottom: 24px;
+    opacity: 0.95;
+    line-height: 1.6;
+}
+
+.contact-info {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 20px;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.contact-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.contact-item svg {
+    flex-shrink: 0;
+}
+
+.contact-item span {
+    font-weight: 500;
+    font-size: 15px;
+}
+
+/* ============================================
+   DARK THEME ADJUSTMENTS
+   ============================================ */
+
+[data-theme="dark"] .privacy-container {
+    background: #111827;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .privacy-header {
+    border-bottom-color: #374151;
+}
+
+[data-theme="dark"] .privacy-intro {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(30, 58, 138, 0.1));
+}
+
+[data-theme="dark"] .service-disclaimer {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
+}
+
+[data-theme="dark"] .contact-box {
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - TABLET
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .main-content {
+        margin-left: 0;
+    }
+
+    .privacy-container {
+        padding: 40px 32px;
+    }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - MOBILE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: 30px 16px;
+    }
+
+    .privacy-container {
+        padding: 32px 24px;
+        border-radius: 12px;
+    }
+
+    .privacy-header h1 {
+        font-size: 28px;
+    }
+
+    .privacy-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .privacy-section h2 {
+        font-size: 20px;
+    }
+
+    .section-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .contact-info {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .contact-item {
+        justify-content: center;
+    }
+
+    .disclaimer-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .disclaimer-icon {
+        margin: 0 auto;
+    }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - SMALL MOBILE
+   ============================================ */
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 20px 12px;
+    }
+
+    .privacy-container {
+        padding: 24px 16px;
+    }
+
+    .privacy-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .privacy-header h1 {
+        font-size: 24px;
+    }
+
+    .last-updated {
+        font-size: 12px;
+    }
+
+    .privacy-intro,
+    .service-disclaimer,
+    .contact-box {
+        padding: 20px;
+    }
+
+    .privacy-section h2 {
+        font-size: 18px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .section-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .privacy-section p,
+    .privacy-section li,
+    .service-disclaimer p,
+    .service-disclaimer li {
+        font-size: 14px;
+    }
+
+    .contact-box h3 {
+        font-size: 20px;
+    }
+
+    .contact-box p {
+        font-size: 14px;
+    }
+
+    .contact-item span {
+        font-size: 13px;
+    }
+}
+
+/* ============================================
+   SCROLL BEHAVIOR
+   ============================================ */
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for webkit browsers */
+.privacy-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.privacy-container::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.privacy-container::-webkit-scrollbar-thumb {
+    background: var(--primary-blue);
+    border-radius: 4px;
+}
+
+.privacy-container::-webkit-scrollbar-thumb:hover {
+    background: var(--light-blue);
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    .header,
+    .sidebar,
+    .sidebar-overlay,
+    .theme-toggle,
+    .sidebar-toggle,
+    .menu-toggle {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0;
+        margin-top: 0;
+        padding: 0;
+    }
+
+    .privacy-container {
+        box-shadow: none;
+        padding: 20px;
+    }
+
+    .contact-box {
+        background: #e5e7eb;
+        color: #000;
+    }
+}

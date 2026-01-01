@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-card">
+        <h1>Backend Connection Tester</h1>
+        <p class="subtitle">Test your backend API connection and endpoints</p>
+
+        <div class="test-section">
+            <h3>Server Status <span id="serverStatus"></span></h3>
+            <button onclick="testHealth()">Test Health Endpoint</button>
+            <button onclick="testRoot()">Test Root Endpoint</button>
+            <div id="healthResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Authentication Tests</h3>
+            <button onclick="testLogin()">Test Login (Invalid Credentials)</button>
+            <button onclick="testCORS()">Test CORS Headers</button>
+            <div id="authResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Network Information</h3>
+            <div id="networkInfo" class="result info"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Troubleshooting Steps</h3>
+            <ol style="line-height: 1.8;">
+                <li>Make sure your Flask backend is running: <code>python app.py</code></li>
+                <li>Check if port 3000 is not blocked by firewall</li>
+                <li>Verify MySQL database is running and accessible</li>
+                <li>Check your .env file configuration</li>
+                <li>Look at backend console for any errors</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000';
+
+        // Display network info
+        document.getElementById('networkInfo').textContent = 
+            `Current URL: ${window.location.href}\n` +
+            `Testing Backend: ${API_BASE_URL}\n` +
+            `Browser: ${navigator.userAgent}`;
+
+        async function makeRequest(url, options = {}) {
+            const startTime = Date.now();
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                const duration = Date.now() - startTime;
+                
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+
+                return {
+                    success: true,
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data,
+                    duration: duration,
+                    headers: Object.fromEntries(response.headers.entries())
+                };
+            } catch (error) {
+                const duration = Date.now() - startTime;
+                return {
+                    success: false,
+                    error: error.message,
+                    errorType: error.name,
+                    duration: duration
+                };
+            }
+        }
+
+        function showResult(elementId, result) {
+            const element = document.getElementById(elementId);
+            
+            if (result.success) {
+                element.innerHTML = `
+                    <div class="result success">
+                        ✓ Success (${result.duration}ms)
+                        Status: ${result.status} ${result.statusText}
+                        
+Response:
+${JSON.stringify(result.data, null, 2)}
+
+Headers:
+${JSON.stringify(result.headers, null, 2)}
+                    </div>
+                `;
+            } else {
+                element.innerHTML = `
+                    <div class="result error">
+                        ✗ Failed (${result.duration}ms)
+                        Error: ${result.error}
+                        Type: ${result.errorType}
+                        
+Common Causes:
+- Backend server is not running on port 3000
+- CORS is not properly configured
+- Firewall is blocking the connection
+- MySQL database is not running
+- Wrong API_BASE_URL configuration
+                    </div>
+                `;
+                updateServerStatus(false);
+            }
+        }
+
+        function updateServerStatus(online) {
+            const statusEl = document.getElementById('serverStatus');
+            if (online) {
+                statusEl.innerHTML = '<span class="status online">ONLINE</span>';
+            } else {
+                statusEl.innerHTML = '<span class="status offline">OFFLINE</span>';
+            }
+        }
+
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '<div class="loading"></div>';
+        }
+
+        async function testHealth() {
+            showLoading('healthResult');
+            const result = await makeRequest(`${API_BASE_URL}/health`);
+            showResult('healthResult', result);
+            if (result.success) {
+                updateServerStatus(true);
+            }
+        }
+
+        async function testRoot() {
+            showLoading('healthResult');
+            const result = await makeRequest(`${API_BASE_URL}/`);
+            showResult('healthResult', result);
+            if (result.success) {
+                updateServerStatus(true);
+            }
+        }
+
+        async function testLogin() {
+            showLoading('authResult');
+            const result = await makeRequest(`${API_BASE_URL}/api/login`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'testpass123'
+                })
+            });
+            showResult('authResult', result);
+            if (result.success) {
+                updateServerStatus(true);
+            }
+        }
+
+        async function testCORS() {
+            showLoading('authResult');
+            const result = await makeRequest(`${API_BASE_URL}/health`, {
+                method: 'OPTIONS'
+            });
+            
+            const element = document.getElementById('authResult');
+            if (result.success) {
+                const corsHeaders = {
+                    'access-control-allow-origin': result.headers['access-control-allow-origin'],
+                    'access-control-allow-methods': result.headers['access-control-allow-methods'],
+                    'access-control-allow-headers': result.headers['access-control-allow-headers']
+                };
+                
+                element.innerHTML = `
+                    <div class="result ${corsHeaders['access-control-allow-origin'] ? 'success' : 'error'}">
+                        CORS Headers:
+${JSON.stringify(corsHeaders, null, 2)}
+                        
+${corsHeaders['access-control-allow-origin'] ? '✓ CORS is properly configured' : '✗ CORS headers missing'}
+                    </div>
+                `;
+            } else {
+                showResult('authResult', result);
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            setTimeout(testHealth, 500);
+        });
+    </script>
+</body>
+</html>

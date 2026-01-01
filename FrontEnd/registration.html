@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join QuickLaundry</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="CSS/registration.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">🧺</div>
+        <h1>Join QuickLaundry</h1>
+        <p class="subtitle">Fresh clothes delivered fast to your doorstep</p>
+      </div>
+
+      <div class="progress-indicator">
+        <div class="progress-line"></div>
+        <div class="progress-fill" id="progressFill"></div>
+        <div class="step-dot active" data-step="1">1</div>
+        <div class="step-dot" data-step="2">2</div>
+        <div class="step-dot" data-step="3">3</div>
+      </div>
+
+      <form id="registrationForm">
+        <!-- Step 1: Account Basics -->
+        <div class="form-step active" data-step="1">
+          <h3>Account Information</h3>
+
+          <div class="form-group">
+            <label for="email"
+              >Email Address <span class="required">*</span></label
+            >
+            <div class="input-wrapper">
+              <i class="fas fa-envelope input-icon"></i>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+            <div class="error-message">Please enter a valid email address</div>
+          </div>
+
+          <div class="row">
+            <div class="form-group">
+              <label for="username"
+                >Username <span class="required">*</span></label
+              >
+              <div class="input-wrapper">
+                <i class="fas fa-user input-icon"></i>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="quickuser"
+                  required
+                />
+              </div>
+              <div class="error-message">
+                3-50 characters, letters & numbers only
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="phone"
+                >Phone Number <span class="required">*</span></label
+              >
+              <div class="input-wrapper">
+                <i class="fas fa-phone input-icon"></i>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="+91 98765 43210"
+                  required
+                />
+              </div>
+              <div class="error-message">Please enter a valid phone number</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-group">
+              <label for="password"
+                >Password <span class="required">*</span></label
+              >
+              <div class="input-wrapper">
+                <i class="fas fa-lock input-icon"></i>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Enter strong password"
+                  required
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  onclick="togglePassword('password')"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="error-message">
+                8-50 chars, 1 special char, no spaces
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword"
+                >Confirm Password <span class="required">*</span></label
+              >
+              <div class="input-wrapper">
+                <i class="fas fa-lock input-icon"></i>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Re-enter password"
+                  required
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  onclick="togglePassword('confirmPassword')"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="error-message">Passwords don't match</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Profile Information -->
+        <div class="form-step" data-step="2">
+          <h3>Your Profile</h3>
+
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <div class="input-wrapper">
+              <i class="fas fa-id-card input-icon"></i>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                placeholder="John Doe"
+              />
+            </div>
+            <div class="error-message">Letters and spaces only</div>
+          </div>
+
+          <div class="form-group">
+            <label for="address"
+              >Delivery Address <span class="required">*</span></label
+            >
+            <div class="input-wrapper">
+              <i class="fas fa-map-marker-alt input-icon"></i>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                placeholder="123 Main Street, City"
+                required
+              />
+            </div>
+            <div class="error-message">Please enter your address</div>
+          </div>
+
+          <div class="row">
+            <div class="form-group">
+              <label for="city">City <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <i class="fas fa-city input-icon"></i>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  placeholder="Your City"
+                  required
+                />
+              </div>
+              <div class="error-message">Please enter your city</div>
+            </div>
+
+            <div class="form-group">
+              <label for="pincode"
+                >Pincode <span class="required">*</span></label
+              >
+              <div class="input-wrapper">
+                <i class="fas fa-mailbox input-icon"></i>
+                <input
+                  type="text"
+                  id="pincode"
+                  name="pincode"
+                  placeholder="123456"
+                  required
+                />
+              </div>
+              <div class="error-message">Please enter valid pincode</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Profile Picture</label>
+            <input
+              type="file"
+              id="profilePic"
+              name="profilePic"
+              accept="image/*"
+              style="display: none"
+              onchange="previewImage(event)"
+            />
+            <div
+              class="profile-upload"
+              onclick="document.getElementById('profilePic').click()"
+            >
+              <img id="preview" class="profile-preview" alt="Profile" />
+              <div id="uploadPlaceholder">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click to upload photo</p>
+                <small>JPG, PNG or GIF (max 5MB)</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Preferences & Verification -->
+        <div class="form-step" data-step="3">
+          <h3>Preferences & Security</h3>
+
+          <div class="form-group">
+            <label>Service Type Preference</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="express"
+                  name="serviceType"
+                  value="express"
+                  checked
+                />
+                <label for="express" class="radio-label">
+                  <i class="fas fa-bolt"></i> Express
+                </label>
+              </div>
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="standard"
+                  name="serviceType"
+                  value="standard"
+                />
+                <label for="standard" class="radio-label">
+                  <i class="fas fa-calendar"></i> Standard
+                </label>
+              </div>
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="economy"
+                  name="serviceType"
+                  value="economy"
+                />
+                <label for="economy" class="radio-label">
+                  <i class="fas fa-coins"></i> Economy
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Communication Preference</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="sms"
+                  name="communication"
+                  value="sms"
+                  checked
+                />
+                <label for="sms" class="radio-label">SMS</label>
+              </div>
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="email-pref"
+                  name="communication"
+                  value="email"
+                />
+                <label for="email-pref" class="radio-label">Email</label>
+              </div>
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="both"
+                  name="communication"
+                  value="both"
+                />
+                <label for="both" class="radio-label">Both</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email OTP Verification Section -->
+          <div class="form-group otp-section">
+            <label for="emailOtp"
+              >Email Verification <span class="required">*</span></label
+            >
+            <div class="otp-container">
+              <div class="otp-inputs">
+                <input
+                  type="text"
+                  class="otp-input"
+                  maxlength="1"
+                  pattern="[0-9]"
+                  inputmode="numeric"
+                  data-index="0"
+                />
+                <input
+                  type="text"
+                  class="otp-input"
+                  maxlength="1"
+                  pattern="[0-9]"
+                  inputmode="numeric"
+                  data-index="1"
+                />
+                <input
+                  type="text"
+                  class="otp-input"
+                  maxlength="1"
+                  pattern="[0-9]"
+                  inputmode="numeric"
+                  data-index="2"
+                />
+                <input
+                  type="text"
+                  class="otp-input"
+                  maxlength="1"
+                  pattern="[0-9]"
+                  inputmode="numeric"
+                  data-index="3"
+                />
+                <input
+                  type="text"
+                  class="otp-input"
+                  maxlength="1"
+                  pattern="[0-9]"
+                  inputmode="numeric"
+                  data-index="4"
+                />
+                <input
+                  type="text"
+                  class="otp-input"
+                  maxlength="1"
+                  pattern="[0-9]"
+                  inputmode="numeric"
+                  data-index="5"
+                />
+              </div>
+              <button
+                type="button"
+                class="btn-send-otp"
+                id="sendOtpBtn"
+                onclick="sendOtp()"
+              >
+                <i class="fas fa-paper-plane"></i> Send OTP
+              </button>
+            </div>
+            <div class="otp-status" id="otpStatus"></div>
+            <div class="error-message">
+              Please enter the 6-digit OTP sent to your email
+            </div>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="terms" name="terms" required />
+            <label for="terms"
+              >I agree to Terms of Service & Privacy Policy
+              <span class="required">*</span></label
+            >
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="newsletter" name="newsletter" checked />
+            <label for="newsletter">Send me updates and special offers</label>
+          </div>
+
+          <div class="success-banner" id="successBanner">
+            <i class="fas fa-check-circle"></i> All set! Ready to create your
+            account.
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button
+            type="button"
+            class="btn-back"
+            id="backBtn"
+            onclick="previousStep()"
+            style="display: none"
+          >
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button
+            type="button"
+            class="btn-next"
+            id="nextBtn"
+            onclick="nextStep()"
+          >
+            Next <i class="fas fa-arrow-right"></i>
+          </button>
+          <button
+            type="submit"
+            class="btn-next"
+            id="submitBtn"
+            style="display: none"
+          >
+            <i class="fas fa-check"></i> Create Account
+          </button>
+        </div>
+      </form>
+
+      <div class="footer">
+        Already have an account? <a href="#" id="signinLink">Sign In</a>
+      </div>
+    </div>
+
+    <script src="JS/registration.js"></script>
+    <script src="JS/popup.js"></script>
+  </body>
+</html>
