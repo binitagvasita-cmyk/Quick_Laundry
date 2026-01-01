@@ -48,7 +48,7 @@ def create_app(config_name='development'):
         logger.info("Database initialized successfully")
         
         # Initialize pricing database
-        from setup_pricing_db import initialize_pricing_database
+        from BackEnd.setup_pricing_db import initialize_pricing_database
         initialize_pricing_database()
         logger.info("Pricing database initialized successfully")
         
