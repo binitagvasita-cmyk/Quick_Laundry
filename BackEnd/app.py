@@ -33,7 +33,14 @@ def create_app(config_name='development'):
     CORS(app, 
          resources={
              r"/api/*": {
-                 "origins": "*",
+                 "origins": [
+                     "https://6956b67ce61b2d1f02cde3f5--jade-moonbeam-9f7186.netlify.app",
+                     "https://jade-moonbeam-9f7186.netlify.app",  # Production Netlify URL
+                     "http://localhost:3000",
+                     "http://127.0.0.1:3000",
+                     "http://localhost:5500",  # Live Server
+                     "*"  # Keep this for now, remove after testing
+                 ],
                  "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                  "allow_headers": ["Content-Type", "Authorization", "Accept"],
                  "expose_headers": ["Content-Type", "Authorization"],
@@ -229,7 +236,7 @@ def main():
     logger.info(f"Debug Mode: {config.DEBUG}")
     logger.info(f"Database: {config.DB_NAME}")
     logger.info(f"Upload Folder: {config.UPLOAD_FOLDER}")
-    logger.info(f"CORS: Enabled for all origins")
+    logger.info(f"CORS: Enabled for Netlify and local origins")
     logger.info(f"Server: http://0.0.0.0:3000")
     logger.info("="*50)
     logger.info("\n🧺 Dry Clean Service: ENABLED")
