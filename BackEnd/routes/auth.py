@@ -1,13 +1,14 @@
 from flask import Blueprint, request, jsonify
-from models.user import User
-from services.otp_service import OTPService
-from services.email_service import EmailService
-from services.jwt_service import JWTService, token_required
-from services.google_oauth_service import GoogleOAuthService
-from services.password_reset_service import PasswordResetService
-from services.session_service import SessionService
-from utils.validators import Validators
-from utils.database import Database
+from BackEnd.models.user import User
+from BackEnd.services.otp_service import OTPService
+from BackEnd.services.otp_service import OTPService
+from BackEnd.services.email_service import EmailService
+from BackEnd.services.jwt_service import JWTService, token_required
+from BackEnd.services.google_oauth_service import GoogleOAuthService
+from BackEnd.services.password_reset_service import PasswordResetService
+from BackEnd.services.session_service import SessionService
+from BackEnd.utils.validators import Validators
+from BackEnd.utils.database import Database
 import logging
 
 logger = logging.getLogger(__name__)
