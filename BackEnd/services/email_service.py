@@ -19,16 +19,55 @@ class EmailService:
         self.sender = config.MAIL_DEFAULT_SENDER
         self.app_name = config.APP_NAME
         self.app_url = config.APP_URL
+        
+        # 🔧 DEBUG: Log email configuration (without exposing password)
+        logger.info("="*50)
+        logger.info("📧 EMAIL SERVICE INITIALIZED")
+        logger.info(f"SMTP Server: {self.smtp_server}")
+        logger.info(f"SMTP Port: {self.smtp_port}")
+        logger.info(f"Username: {self.username}")
+        logger.info(f"Password Set: {bool(self.password)}")
+        logger.info(f"Sender: {self.sender}")
+        logger.info(f"App Name: {self.app_name}")
+        logger.info("="*50)
+        
+        # ⚠️ CRITICAL: Check if email credentials are missing
+        if not self.username or not self.password:
+            logger.error("❌ CRITICAL: Email credentials are MISSING!")
+            logger.error("Please set MAIL_USERNAME and MAIL_PASSWORD in Render Environment Variables")
     
     def _create_smtp_connection(self):
         """Create and return SMTP connection"""
         try:
-            server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+            logger.info(f"🔄 Attempting to connect to {self.smtp_server}:{self.smtp_port}")
+            logger.info(f"📧 Using username: {self.username}")
+            logger.info(f"🔑 Password configured: {bool(self.password)}")
+            
+            # Check credentials before attempting connection
+            if not self.username or not self.password:
+                raise ValueError("Email credentials not configured. Please set MAIL_USERNAME and MAIL_PASSWORD in environment variables.")
+            
+            server = smtplib.SMTP(self.smtp_server, self.smtp_port, timeout=30)
+            logger.info("✅ SMTP connection established")
+            
             server.starttls()
+            logger.info("✅ TLS started")
+            
             server.login(self.username, self.password)
+            logger.info("✅ SMTP authentication successful")
+            
             return server
+            
+        except smtplib.SMTPAuthenticationError as e:
+            logger.error(f"❌ SMTP Authentication Failed: {e}")
+            logger.error("⚠️ Check your Gmail App Password or enable 2-Step Verification")
+            raise ValueError("Email authentication failed. Please check your Gmail settings.")
+        except smtplib.SMTPConnectError as e:
+            logger.error(f"❌ SMTP Connection Error: {e}")
+            raise ValueError("Unable to connect to email server.")
         except Exception as e:
-            logger.error(f"Failed to connect to SMTP server: {e}")
+            logger.error(f"❌ Failed to connect to SMTP server: {e}")
+            logger.error(f"Error type: {type(e).__name__}")
             raise
     
     def send_email(self, to_email, subject, html_content, text_content=None):
@@ -37,6 +76,9 @@ class EmailService:
         Returns: (success, message)
         """
         try:
+            logger.info(f"📤 Preparing to send email to {to_email}")
+            logger.info(f"📋 Subject: {subject}")
+            
             # Create message
             message = MIMEMultipart('alternative')
             message['Subject'] = subject
@@ -52,26 +94,37 @@ class EmailService:
             html_part = MIMEText(html_content, 'html')
             message.attach(html_part)
             
+            logger.info("📧 Email message created, attempting to send...")
+            
             # Send email
             with self._create_smtp_connection() as server:
                 server.send_message(message)
             
-            logger.info(f"Email sent successfully to {to_email}")
+            logger.info(f"✅ Email sent successfully to {to_email}")
             return True, "Email sent successfully"
             
-        except Exception as e:
-            logger.error(f"Failed to send email to {to_email}: {e}")
+        except ValueError as e:
+            # Configuration errors
+            logger.error(f"❌ Configuration error: {e}")
             return False, str(e)
+        except Exception as e:
+            logger.error(f"❌ Failed to send email to {to_email}: {e}")
+            logger.error(f"Error type: {type(e).__name__}")
+            return False, f"Failed to send email: {str(e)}"
     
     def send_otp_email(self, to_email, otp_code, expires_at):
         """
         Send OTP verification email
         Returns: (success, message)
         """
+        logger.info(f"🔢 Preparing OTP email for {to_email}")
+        logger.info(f"🔢 OTP Code: {otp_code}")
+        
         subject = f"Your {self.app_name} Verification Code"
         
         # Calculate expiry minutes
         expiry_minutes = int((expires_at - datetime.now()).total_seconds() / 60)
+        logger.info(f"⏱️ OTP expires in {expiry_minutes} minutes")
         
         # HTML content
         html_content = f"""
@@ -373,8 +426,6 @@ class EmailService:
         Send password reset email
         Returns: (success, message)
         """
-        #reset_url = f"{self.app_url}/reset-password?token={reset_token}"
-        # NEW (should be):
         reset_url = f"{self.app_url}/reset-password.html?token={reset_token}"
         subject = f"Reset Your {self.app_name} Password"
         
