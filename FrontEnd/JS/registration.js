@@ -12,25 +12,25 @@ console.log('API Base URL:', API_BASE_URL);
 
 // Function to wake up Render backend (it sleeps after inactivity)
 async function wakeUpBackend() {
-  console.log('🔄 Waking up backend server...');
+  console.log('🔄 Checking backend server...');
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-    
-    const response = await fetch('https://quick-laundry-backend.onrender.com/health', {
+    // Try the root endpoint first (which we know works from logs)
+    const response = await fetch('https://quick-laundry-backend.onrender.com/', {
       method: 'GET',
-      signal: controller.signal
+      headers: {
+        'Accept': 'text/html,application/json'
+      }
     });
-    
-    clearTimeout(timeoutId);
     
     if (response.ok) {
       console.log('✅ Backend is awake and ready!');
       return true;
     }
+    
+    console.warn('⚠️ Backend responded but not OK:', response.status);
     return false;
   } catch (error) {
-    console.error('❌ Failed to wake up backend:', error.message);
+    console.error('❌ Failed to reach backend:', error.message);
     return false;
   }
 }
@@ -311,14 +311,7 @@ async function sendOtp() {
     console.log('📧 Sending OTP to:', email);
     console.log('🌐 API URL:', `${API_BASE_URL}/send-otp`);
 
-    // First, wake up the backend
-    showOtpStatus("⏳ Waking up server (may take 30-60s on first load)...", "info");
-    const isAwake = await wakeUpBackend();
-    
-    if (!isAwake) {
-      throw new Error("Backend server is not responding. Please wait a moment and try again.");
-    }
-
+    // Show sending message
     showOtpStatus("📤 Sending OTP...", "info");
 
     const response = await fetch(`${API_BASE_URL}/send-otp`, {
@@ -337,7 +330,7 @@ async function sendOtp() {
     if (!contentType || !contentType.includes("application/json")) {
       const text = await response.text();
       console.error('❌ Non-JSON response:', text);
-      throw new Error("Server returned invalid response. It may still be starting up.");
+      throw new Error("Server returned invalid response. Backend may be starting up.");
     }
 
     const data = await response.json();
@@ -371,13 +364,15 @@ async function sendOtp() {
   } catch (error) {
     console.error("❌ Send OTP error:", error);
     
-    let errorMessage = "Connection error. ";
-    if (error.message.includes("Backend server is not responding")) {
-      errorMessage = "⏳ Server is starting up (takes 30-60 seconds). Please wait and try again.";
-    } else if (error.message.includes("starting up")) {
-      errorMessage = "Server is waking up. Please wait 30 seconds and try again.";
+    let errorMessage = "";
+    
+    // Check if it's a network error
+    if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+      errorMessage = "⏳ Cannot reach server. This usually means:\n\n1. The server is waking up (wait 30 seconds)\n2. Network connectivity issue\n3. CORS configuration problem\n\nPlease try again in 30 seconds.";
+    } else if (error.message.includes("starting up") || error.message.includes("invalid response")) {
+      errorMessage = "⏳ Server is starting up. Please wait 30 seconds and click 'Send OTP' again.";
     } else {
-      errorMessage += error.message;
+      errorMessage = `Error: ${error.message}\n\nPlease try again.`;
     }
     
     showOtpStatus(errorMessage, "error");
@@ -387,7 +382,7 @@ async function sendOtp() {
     if (typeof showError === 'function') {
       showError(
         "Connection Error",
-        errorMessage + "\n\nThe free server tier sleeps after inactivity. Please wait a moment for it to wake up."
+        errorMessage
       );
     } else {
       alert(errorMessage);
