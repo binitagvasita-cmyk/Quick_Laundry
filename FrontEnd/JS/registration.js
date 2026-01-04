@@ -1,21 +1,39 @@
+// FIXED VERSION - registration.js with improved error handling and backend wake-up
+
 let currentStep = 1;
 const totalSteps = 3;
 let otpSent = false;
 let otpVerified = false;
 
-// API Configuration - Auto-detect backend URL
-const API_BASE_URL = (() => {
-  const hostname = window.location.hostname;
-  
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:3000/api';
-  } else {
-    // Point to your Render backend
-    return 'https://quick-laundry-backend.onrender.com/api';
-  }
-})();
+// API Configuration - FIXED for deployment
+const API_BASE_URL = 'https://quick-laundry-backend.onrender.com/api';
 
 console.log('API Base URL:', API_BASE_URL);
+
+// Function to wake up Render backend (it sleeps after inactivity)
+async function wakeUpBackend() {
+  console.log('🔄 Waking up backend server...');
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
+    const response = await fetch('https://quick-laundry-backend.onrender.com/health', {
+      method: 'GET',
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (response.ok) {
+      console.log('✅ Backend is awake and ready!');
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('❌ Failed to wake up backend:', error.message);
+    return false;
+  }
+}
 
 // ===== THEME MANAGEMENT =====
 class ThemeManager {
@@ -76,8 +94,24 @@ class ThemeManager {
 }
 
 // ===== INITIALIZATION =====
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   console.log("QuickLaundry Registration initialized");
+  console.log("Deployed Mode - Using Render Backend");
+
+  // Show initial loading message
+  showLoadingMessage("Connecting to server...");
+
+  // Wake up backend first
+  const isBackendReady = await wakeUpBackend();
+  
+  hideLoadingMessage();
+  
+  if (!isBackendReady) {
+    showWarning(
+      "Backend Starting Up",
+      "The server is starting up (this takes 30-60 seconds on first load). Please wait a moment and try again."
+    );
+  }
 
   const themeManager = new ThemeManager();
   window.themeManager = themeManager;
@@ -87,6 +121,45 @@ document.addEventListener("DOMContentLoaded", function () {
   setupOtpInputs();
   setupSigninLink();
 });
+
+// Loading message functions
+function showLoadingMessage(message) {
+  const loadingDiv = document.createElement('div');
+  loadingDiv.id = 'backend-loading';
+  loadingDiv.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    color: white;
+    font-size: 18px;
+    flex-direction: column;
+    gap: 20px;
+  `;
+  loadingDiv.innerHTML = `
+    <div style="text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 20px;">⏳</div>
+      <div>${message}</div>
+      <div style="margin-top: 10px; font-size: 14px; opacity: 0.7;">
+        Free tier servers take 30-60 seconds to wake up...
+      </div>
+    </div>
+  `;
+  document.body.appendChild(loadingDiv);
+}
+
+function hideLoadingMessage() {
+  const loadingDiv = document.getElementById('backend-loading');
+  if (loadingDiv) {
+    loadingDiv.remove();
+  }
+}
 
 function setupEventListeners() {
   const form = document.getElementById("registrationForm");
@@ -212,7 +285,7 @@ function lockEmailAndUsername() {
   }
 }
 
-// ===== OTP SEND FUNCTION =====
+// ===== OTP SEND FUNCTION - FIXED =====
 async function sendOtp() {
   const email = document.getElementById("email").value;
 
@@ -235,8 +308,18 @@ async function sendOtp() {
   sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
   try {
-    console.log('Sending OTP to:', email);
-    console.log('API URL:', `${API_BASE_URL}/send-otp`);
+    console.log('📧 Sending OTP to:', email);
+    console.log('🌐 API URL:', `${API_BASE_URL}/send-otp`);
+
+    // First, wake up the backend
+    showOtpStatus("⏳ Waking up server (may take 30-60s on first load)...", "info");
+    const isAwake = await wakeUpBackend();
+    
+    if (!isAwake) {
+      throw new Error("Backend server is not responding. Please wait a moment and try again.");
+    }
+
+    showOtpStatus("📤 Sending OTP...", "info");
 
     const response = await fetch(`${API_BASE_URL}/send-otp`, {
       method: "POST",
@@ -247,28 +330,28 @@ async function sendOtp() {
       body: JSON.stringify({ email }),
     });
 
-    console.log('Response status:', response.status);
-    console.log('Response ok:', response.ok);
+    console.log('📨 Response status:', response.status);
 
-    // Check if response is JSON
+    // Check content type
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-      throw new Error("Server returned non-JSON response");
+      const text = await response.text();
+      console.error('❌ Non-JSON response:', text);
+      throw new Error("Server returned invalid response. It may still be starting up.");
     }
 
     const data = await response.json();
-    console.log('Response data:', data);
+    console.log('📦 Response data:', data);
 
     if (data.success) {
       otpSent = true;
-      showOtpStatus("✓ OTP sent successfully! Check your email.", "success");
+      showOtpStatus("✅ OTP sent successfully! Check your email.", "success");
       startOtpTimer(sendBtn);
       
-      // Show success popup
       if (typeof showSuccess === 'function') {
         showSuccess(
           "OTP Sent!",
-          "A 6-digit verification code has been sent to your email address. Please check your inbox."
+          "A 6-digit verification code has been sent to your email address. Please check your inbox (and spam folder)."
         );
       }
     } else {
@@ -276,7 +359,6 @@ async function sendOtp() {
       sendBtn.disabled = false;
       sendBtn.innerHTML = originalText;
       
-      // Show error popup
       if (typeof showError === 'function') {
         showError(
           "Failed to Send OTP",
@@ -287,24 +369,33 @@ async function sendOtp() {
       }
     }
   } catch (error) {
-    console.error("Send OTP error:", error);
-    showOtpStatus("Connection error. Please check your internet.", "error");
+    console.error("❌ Send OTP error:", error);
+    
+    let errorMessage = "Connection error. ";
+    if (error.message.includes("Backend server is not responding")) {
+      errorMessage = "⏳ Server is starting up (takes 30-60 seconds). Please wait and try again.";
+    } else if (error.message.includes("starting up")) {
+      errorMessage = "Server is waking up. Please wait 30 seconds and try again.";
+    } else {
+      errorMessage += error.message;
+    }
+    
+    showOtpStatus(errorMessage, "error");
     sendBtn.disabled = false;
     sendBtn.innerHTML = originalText;
     
-    // Show error popup
     if (typeof showError === 'function') {
       showError(
         "Connection Error",
-        `Unable to connect to server. Please check:\n\n1. Backend is running on port 3000\n2. Your internet connection\n3. Firewall settings\n\nError: ${error.message}`
+        errorMessage + "\n\nThe free server tier sleeps after inactivity. Please wait a moment for it to wake up."
       );
     } else {
-      alert(`Connection error: ${error.message}\n\nPlease ensure the backend server is running.`);
+      alert(errorMessage);
     }
   }
 }
 
-// ===== OTP VERIFICATION =====
+// ===== OTP VERIFICATION - FIXED =====
 async function verifyOtp(otp) {
   const email = document.getElementById("email").value;
   
@@ -314,7 +405,7 @@ async function verifyOtp(otp) {
   }
 
   try {
-    console.log("Verifying OTP:", otp, "for email:", email);
+    console.log("🔐 Verifying OTP:", otp, "for email:", email);
     
     const response = await fetch(`${API_BASE_URL}/verify-otp`, {
       method: "POST",
@@ -325,26 +416,23 @@ async function verifyOtp(otp) {
       body: JSON.stringify({ email, otp }),
     });
 
-    console.log('Verify response status:', response.status);
+    console.log('✅ Verify response status:', response.status);
 
     const data = await response.json();
-    console.log("Verify OTP response:", data);
+    console.log("📦 Verify OTP response:", data);
 
     if (data.success) {
       otpVerified = true;
-      showOtpStatus("✓ Email verified successfully!", "success");
+      showOtpStatus("✅ Email verified successfully!", "success");
       document.querySelector(".otp-section").classList.remove("error");
 
-      // Disable OTP inputs after successful verification
       document.querySelectorAll(".otp-input").forEach((input) => {
         input.disabled = true;
       });
       document.getElementById("sendOtpBtn").disabled = true;
       
-      // Lock email and username fields
       lockEmailAndUsername();
       
-      // Show success popup
       if (typeof showSuccess === 'function') {
         showSuccess(
           "Email Verified!",
@@ -357,10 +445,8 @@ async function verifyOtp(otp) {
       clearOtpInputs();
       document.querySelector(".otp-section").classList.add("error");
       
-      // Re-focus first input
       document.querySelector(".otp-input").focus();
       
-      // Show error popup
       if (typeof showError === 'function') {
         showError(
           "Invalid OTP",
@@ -369,11 +455,10 @@ async function verifyOtp(otp) {
       }
     }
   } catch (error) {
-    console.error("Verify OTP error:", error);
+    console.error("❌ Verify OTP error:", error);
     showOtpStatus("Connection error. Please try again.", "error");
     otpVerified = false;
     
-    // Show error popup
     if (typeof showError === 'function') {
       showError(
         "Verification Failed",
@@ -383,7 +468,7 @@ async function verifyOtp(otp) {
   }
 }
 
-// ===== OTP TIMER =====
+// ===== REST OF THE CODE (unchanged) =====
 function startOtpTimer(button) {
   let timeLeft = 60;
 
@@ -399,14 +484,12 @@ function startOtpTimer(button) {
   }, 1000);
 }
 
-// ===== OTP STATUS DISPLAY =====
 function showOtpStatus(message, type) {
   const statusDiv = document.getElementById("otpStatus");
   statusDiv.textContent = message;
   statusDiv.className = `otp-status ${type}`;
 }
 
-// ===== PROGRESS BAR =====
 function updateProgress() {
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
   const progressFill = document.getElementById("progressFill");
@@ -454,7 +537,6 @@ function updateProgress() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ===== NAVIGATION =====
 function nextStep() {
   if (validateStep(currentStep)) {
     if (currentStep < totalSteps) {
@@ -471,7 +553,6 @@ function previousStep() {
   }
 }
 
-// ===== VALIDATION =====
 function validateStep(step) {
   let isValid = true;
 
@@ -571,7 +652,6 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
-// ===== PASSWORD TOGGLE =====
 function togglePassword(fieldId) {
   const field = document.getElementById(fieldId);
   const icon = field.nextElementSibling;
@@ -585,7 +665,6 @@ function togglePassword(fieldId) {
   }
 }
 
-// ===== IMAGE PREVIEW =====
 function previewImage(event) {
   const file = event.target.files[0];
   const preview = document.getElementById("preview");
@@ -635,7 +714,6 @@ function previewImage(event) {
   reader.readAsDataURL(file);
 }
 
-// ===== FORM SUBMISSION =====
 async function handleFormSubmit(e) {
   e.preventDefault();
 
@@ -659,19 +737,20 @@ async function handleFormSubmit(e) {
     otp_verified: otpVerified,
   };
 
-  console.log("Form Data:", formData);
+  console.log("📝 Form Data:", formData);
 
   const submitBtn = document.querySelector('button[type="submit"]');
   const originalText = submitBtn.innerHTML;
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
 
-  // Show loading popup
   if (typeof showLoading === 'function') {
     showLoading("Creating your account...");
   }
 
   try {
+    console.log('🚀 Submitting registration to:', `${API_BASE_URL}/register`);
+    
     const response = await fetch(`${API_BASE_URL}/register`, {
       method: "POST",
       headers: {
@@ -681,19 +760,18 @@ async function handleFormSubmit(e) {
       body: JSON.stringify(formData),
     });
 
+    console.log('📨 Registration response status:', response.status);
+    
     const data = await response.json();
-    console.log("Registration response:", data);
+    console.log("📦 Registration response:", data);
 
-    // Wait a moment before closing loading popup
     setTimeout(() => {
-      // Close loading popup
       if (typeof closePopup === 'function') {
         closePopup();
       }
 
-      // Check if registration was successful
       if (response.ok && data.success) {
-        console.log("Registration successful!");
+        console.log("✅ Registration successful!");
         
         const successBanner = document.getElementById("successBanner");
         if (successBanner) {
@@ -723,7 +801,7 @@ async function handleFormSubmit(e) {
           }
         }, 400);
       } else {
-        console.log("Registration failed:", data.message);
+        console.log("❌ Registration failed:", data.message);
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
         
@@ -740,7 +818,7 @@ async function handleFormSubmit(e) {
       }
     }, 500);
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("❌ Registration error:", error);
     
     setTimeout(() => {
       if (typeof closePopup === 'function') {
@@ -754,7 +832,7 @@ async function handleFormSubmit(e) {
         if (typeof showError === 'function') {
           showError(
             "Connection Error",
-            `Unable to connect to server: ${error.message}`
+            `Unable to connect to server: ${error.message}\n\nPlease ensure the backend is running and try again.`
           );
         } else {
           alert(`Connection error: ${error.message}`);
@@ -764,11 +842,19 @@ async function handleFormSubmit(e) {
   }
 }
 
-// ===== UTILITY FUNCTIONS =====
 function switchToLogin() {
   if (window.parent && window.parent !== window) {
     window.parent.postMessage({ action: "switchToLogin" }, "*");
   } else {
     window.location.href = "login.html";
+  }
+}
+
+// Helper function for warnings
+function showWarning(title, message) {
+  if (typeof showError === 'function') {
+    showError(title, message);
+  } else {
+    alert(`${title}\n\n${message}`);
   }
 }
