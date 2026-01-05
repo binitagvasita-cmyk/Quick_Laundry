@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from BackEnd.config import config_by_name
 from BackEnd.utils.database import Database
@@ -6,7 +6,7 @@ from BackEnd.routes.auth import init_auth_routes
 from BackEnd.routes.pricing import init_pricing_routes
 from BackEnd.routes.order import init_order_routes
 from BackEnd.routes.user import init_user_routes
-from BackEnd.routes.dry_clean import init_dry_clean_routes  # NEW - DRY CLEAN ROUTES
+from BackEnd.routes.dry_clean import init_dry_clean_routes
 import logging
 import os
 
@@ -29,17 +29,17 @@ def create_app(config_name='development'):
     app.config.from_object(config)
     config.init_app(app)
     
-    # Enable CORS with proper configuration
+    # Enable CORS with proper configuration - FIXED
     CORS(app, 
          resources={
-             r"/api/*": {
+             r"/*": {  # Changed from r"/api/*" to cover ALL routes
                  "origins": [
+                     "https://rococo-taffy-e1a091.netlify.app",  # Your actual Netlify URL
                      "https://6956b67ce61b2d1f02cde3f5--jade-moonbeam-9f7186.netlify.app",
-                     "https://jade-moonbeam-9f7186.netlify.app",  # Production Netlify URL
+                     "https://jade-moonbeam-9f7186.netlify.app",
                      "http://localhost:3000",
                      "http://127.0.0.1:3000",
-                     "http://localhost:5500",  # Live Server
-                     "*"  # Keep this for now, remove after testing
+                     "http://localhost:5500",
                  ],
                  "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                  "allow_headers": ["Content-Type", "Authorization", "Accept"],
@@ -87,8 +87,15 @@ def create_app(config_name='development'):
     init_user_routes(app, config)
     logger.info("User profile routes initialized")
     
-    init_dry_clean_routes(app)  # NEW - INITIALIZE DRY CLEAN ROUTES
+    init_dry_clean_routes(app)
     logger.info("Dry Clean routes initialized")
+    
+    # Add explicit OPTIONS handler for CORS preflight - NEW
+    @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
+    @app.route('/<path:path>', methods=['OPTIONS'])
+    def handle_options(path):
+        """Handle OPTIONS requests for CORS preflight"""
+        return '', 204
     
     # Health check endpoint
     @app.route('/health', methods=['GET', 'OPTIONS'])
@@ -149,7 +156,7 @@ def create_app(config_name='development'):
                     'statistics': '/api/orders/statistics',
                     'health': '/api/orders/health'
                 },
-                'dry_clean': {  # NEW - DRY CLEAN ENDPOINTS
+                'dry_clean': {
                     'create_order': '/api/dry-clean/orders',
                     'get_orders': '/api/dry-clean/orders',
                     'get_order': '/api/dry-clean/orders/<id>',
@@ -192,14 +199,31 @@ def create_app(config_name='development'):
     @app.before_request
     def log_request():
         """Log incoming requests"""
-        from flask import request
         logger.info(f"{request.method} {request.path} - {request.remote_addr}")
     
-    # Response middleware - Add CORS headers to all responses
+    # Response middleware - Add CORS headers to all responses - FIXED
     @app.after_request
     def add_cors_headers(response):
         """Add CORS headers to all responses"""
-        response.headers['Access-Control-Allow-Origin'] = '*'
+        origin = request.headers.get('Origin')
+        
+        # List of allowed origins
+        allowed_origins = [
+            'https://rococo-taffy-e1a091.netlify.app',
+            'https://6956b67ce61b2d1f02cde3f5--jade-moonbeam-9f7186.netlify.app',
+            'https://jade-moonbeam-9f7186.netlify.app',
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'http://localhost:5500'
+        ]
+        
+        # Set CORS headers based on origin
+        if origin in allowed_origins:
+            response.headers['Access-Control-Allow-Origin'] = origin
+        else:
+            # Default for development
+            response.headers['Access-Control-Allow-Origin'] = 'https://rococo-taffy-e1a091.netlify.app'
+        
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept'
         response.headers['Access-Control-Expose-Headers'] = 'Content-Type, Authorization'
@@ -207,7 +231,6 @@ def create_app(config_name='development'):
         response.headers['Access-Control-Allow-Credentials'] = 'true'
         
         # Log response
-        from flask import request
         logger.info(f"{request.method} {request.path} - Status: {response.status_code}")
         
         return response
