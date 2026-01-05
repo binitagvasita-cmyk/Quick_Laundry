@@ -34,32 +34,37 @@ class OTPService:
             logger.info(f"⏰ OTP will expire at: {expires_at}")
             
             # Delete any existing OTPs for this email and purpose
-            delete_query = """
-                DELETE FROM otp_verification 
-                WHERE email = %s AND purpose = %s
-            """
-            deleted = Database.execute_query(delete_query, (email, purpose))
-            if deleted:
-                logger.info(f"🗑️ Deleted existing OTP records for {email}")
+            try:
+                delete_query = """
+                    DELETE FROM otp_verification 
+                    WHERE email = %s AND purpose = %s
+                """
+                Database.execute_query(delete_query, (email, purpose))
+                logger.info(f"🗑️ Cleaned up any existing OTP records for {email}")
+            except Exception as del_error:
+                logger.warning(f"⚠️ Could not delete existing OTPs: {del_error}")
             
-            # Insert new OTP - FIXED: using 'otp' instead of 'otp_code'
+            # Insert new OTP
             insert_query = """
                 INSERT INTO otp_verification 
                 (email, otp, purpose, expires_at) 
                 VALUES (%s, %s, %s, %s)
             """
-            result = Database.execute_query(
-                insert_query, 
-                (email, otp_code, purpose, expires_at)
-            )
             
-            if result:
+            # FIXED: Don't check the return value, just try the insert and catch exceptions
+            try:
+                Database.execute_query(
+                    insert_query, 
+                    (email, otp_code, purpose, expires_at)
+                )
+                
+                # If we get here without exception, INSERT succeeded
                 logger.info(f"✅ OTP created successfully for {email}: {otp_code} (expires at {expires_at})")
                 return otp_code, expires_at
-            else:
-                logger.error(f"❌ Failed to insert OTP into database for {email}")
-                logger.error(f"Query: {insert_query}")
-                logger.error(f"Values: ({email}, {otp_code}, {purpose}, {expires_at})")
+                
+            except Exception as insert_error:
+                logger.error(f"❌ Database INSERT failed: {insert_error}")
+                logger.exception("Full traceback:")
                 return None, None
             
         except Exception as e:
@@ -76,7 +81,7 @@ class OTPService:
         try:
             logger.info(f"🔍 Verifying OTP for {email} (code: {otp_code}, purpose: {purpose})")
             
-            # Get OTP record - FIXED: using 'otp' instead of 'otp_code'
+            # Get OTP record
             query = """
                 SELECT id, otp, expires_at, is_verified 
                 FROM otp_verification 
@@ -102,7 +107,7 @@ class OTPService:
                 logger.warning(f"⚠️ OTP expired for {email} (expired at {result['expires_at']})")
                 return False, "OTP has expired. Please request a new one"
             
-            # Check if OTP matches - FIXED: using 'otp' instead of 'otp_code'
+            # Check if OTP matches
             if result['otp'] != otp_code:
                 logger.warning(f"⚠️ Invalid OTP for {email}. Expected: {result['otp']}, Got: {otp_code}")
                 return False, "Invalid OTP code"
@@ -166,7 +171,7 @@ class OTPService:
                 DELETE FROM otp_verification 
                 WHERE expires_at < NOW()
             """
-            result = Database.execute_query(query)
+            Database.execute_query(query)
             
             logger.info(f"✅ Expired OTPs cleaned up successfully")
             
