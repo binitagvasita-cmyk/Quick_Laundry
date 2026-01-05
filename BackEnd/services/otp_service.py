@@ -42,10 +42,10 @@ class OTPService:
             if deleted:
                 logger.info(f"🗑️ Deleted existing OTP records for {email}")
             
-            # Insert new OTP
+            # Insert new OTP - FIXED: using 'otp' instead of 'otp_code'
             insert_query = """
                 INSERT INTO otp_verification 
-                (email, otp_code, purpose, expires_at) 
+                (email, otp, purpose, expires_at) 
                 VALUES (%s, %s, %s, %s)
             """
             result = Database.execute_query(
@@ -58,6 +58,8 @@ class OTPService:
                 return otp_code, expires_at
             else:
                 logger.error(f"❌ Failed to insert OTP into database for {email}")
+                logger.error(f"Query: {insert_query}")
+                logger.error(f"Values: ({email}, {otp_code}, {purpose}, {expires_at})")
                 return None, None
             
         except Exception as e:
@@ -74,9 +76,9 @@ class OTPService:
         try:
             logger.info(f"🔍 Verifying OTP for {email} (code: {otp_code}, purpose: {purpose})")
             
-            # Get OTP record
+            # Get OTP record - FIXED: using 'otp' instead of 'otp_code'
             query = """
-                SELECT id, otp_code, expires_at, is_verified 
+                SELECT id, otp, expires_at, is_verified 
                 FROM otp_verification 
                 WHERE email = %s AND purpose = %s 
                 ORDER BY created_at DESC 
@@ -88,7 +90,7 @@ class OTPService:
                 logger.warning(f"⚠️ No OTP found for {email}")
                 return False, "No OTP found for this email"
             
-            logger.info(f"📋 Found OTP record: ID={result['id']}, Code={result['otp_code']}, Verified={result['is_verified']}, Expires={result['expires_at']}")
+            logger.info(f"📋 Found OTP record: ID={result['id']}, Code={result['otp']}, Verified={result['is_verified']}, Expires={result['expires_at']}")
             
             # Check if already verified
             if result['is_verified']:
@@ -100,9 +102,9 @@ class OTPService:
                 logger.warning(f"⚠️ OTP expired for {email} (expired at {result['expires_at']})")
                 return False, "OTP has expired. Please request a new one"
             
-            # Check if OTP matches
-            if result['otp_code'] != otp_code:
-                logger.warning(f"⚠️ Invalid OTP for {email}. Expected: {result['otp_code']}, Got: {otp_code}")
+            # Check if OTP matches - FIXED: using 'otp' instead of 'otp_code'
+            if result['otp'] != otp_code:
+                logger.warning(f"⚠️ Invalid OTP for {email}. Expected: {result['otp']}, Got: {otp_code}")
                 return False, "Invalid OTP code"
             
             # Mark OTP as verified
