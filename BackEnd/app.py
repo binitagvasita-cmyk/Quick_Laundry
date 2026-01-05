@@ -29,22 +29,15 @@ def create_app(config_name='development'):
     app.config.from_object(config)
     config.init_app(app)
     
-    # Enable CORS with proper configuration - FIXED
+    # Enable CORS - SIMPLIFIED AND FIXED
     CORS(app, 
          resources={
-             r"/*": {  # Changed from r"/api/*" to cover ALL routes
-                 "origins": [
-                     "https://rococo-taffy-e1a091.netlify.app",  # Your actual Netlify URL
-                     "https://6956b67ce61b2d1f02cde3f5--jade-moonbeam-9f7186.netlify.app",
-                     "https://jade-moonbeam-9f7186.netlify.app",
-                     "http://localhost:3000",
-                     "http://127.0.0.1:3000",
-                     "http://localhost:5500",
-                 ],
+             r"/*": {
+                 "origins": "*",  # Allow all origins for now
                  "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-                 "allow_headers": ["Content-Type", "Authorization", "Accept"],
+                 "allow_headers": ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
                  "expose_headers": ["Content-Type", "Authorization"],
-                 "supports_credentials": True,
+                 "supports_credentials": False,  # Changed to False when using "*"
                  "max_age": 3600
              }
          })
@@ -90,17 +83,13 @@ def create_app(config_name='development'):
     init_dry_clean_routes(app)
     logger.info("Dry Clean routes initialized")
     
-    # Add explicit OPTIONS handler for CORS preflight - NEW
-    @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
-    @app.route('/<path:path>', methods=['OPTIONS'])
-    def handle_options(path):
-        """Handle OPTIONS requests for CORS preflight"""
-        return '', 204
-    
     # Health check endpoint
     @app.route('/health', methods=['GET', 'OPTIONS'])
     def health_check():
         """Health check endpoint"""
+        if request.method == 'OPTIONS':
+            return '', 204
+            
         try:
             # Test database connection
             db_status = Database.test_connection()
@@ -119,12 +108,16 @@ def create_app(config_name='development'):
             }), 503
     
     # Root endpoint
-    @app.route('/', methods=['GET'])
+    @app.route('/', methods=['GET', 'OPTIONS'])
     def index():
         """Root endpoint"""
+        if request.method == 'OPTIONS':
+            return '', 204
+            
         return jsonify({
             'message': f'Welcome to {config.APP_NAME} API',
             'version': '1.0.0',
+            'cors': 'enabled',
             'endpoints': {
                 'health': '/health',
                 'auth': {
@@ -199,36 +192,18 @@ def create_app(config_name='development'):
     @app.before_request
     def log_request():
         """Log incoming requests"""
-        logger.info(f"{request.method} {request.path} - {request.remote_addr}")
+        logger.info(f"{request.method} {request.path} - Origin: {request.headers.get('Origin', 'None')} - {request.remote_addr}")
     
-    # Response middleware - Add CORS headers to all responses - FIXED
+    # Response middleware - SIMPLIFIED CORS
     @app.after_request
     def add_cors_headers(response):
         """Add CORS headers to all responses"""
-        origin = request.headers.get('Origin')
-        
-        # List of allowed origins
-        allowed_origins = [
-            'https://rococo-taffy-e1a091.netlify.app',
-            'https://6956b67ce61b2d1f02cde3f5--jade-moonbeam-9f7186.netlify.app',
-            'https://jade-moonbeam-9f7186.netlify.app',
-            'http://localhost:3000',
-            'http://127.0.0.1:3000',
-            'http://localhost:5500'
-        ]
-        
-        # Set CORS headers based on origin
-        if origin in allowed_origins:
-            response.headers['Access-Control-Allow-Origin'] = origin
-        else:
-            # Default for development
-            response.headers['Access-Control-Allow-Origin'] = 'https://rococo-taffy-e1a091.netlify.app'
-        
+        # Allow all origins for now to fix the issue
+        response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept, X-Requested-With'
         response.headers['Access-Control-Expose-Headers'] = 'Content-Type, Authorization'
         response.headers['Access-Control-Max-Age'] = '3600'
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
         
         # Log response
         logger.info(f"{request.method} {request.path} - Status: {response.status_code}")
@@ -252,6 +227,9 @@ def main():
     # Get configuration
     config = config_by_name.get(env, config_by_name['default'])
     
+    # Get port from environment or default
+    port = int(os.getenv('PORT', 3000))
+    
     # Print startup information
     logger.info("="*50)
     logger.info(f"Starting {config.APP_NAME} Server")
@@ -259,17 +237,18 @@ def main():
     logger.info(f"Debug Mode: {config.DEBUG}")
     logger.info(f"Database: {config.DB_NAME}")
     logger.info(f"Upload Folder: {config.UPLOAD_FOLDER}")
-    logger.info(f"CORS: Enabled for Netlify and local origins")
-    logger.info(f"Server: http://0.0.0.0:3000")
+    logger.info(f"CORS: Enabled for ALL origins (open)")
+    logger.info(f"Port: {port}")
+    logger.info(f"Server: http://0.0.0.0:{port}")
     logger.info("="*50)
     logger.info("\n🧺 Dry Clean Service: ENABLED")
-    logger.info("📍 Dry Clean API: http://localhost:3000/api/dry-clean")
+    logger.info(f"📍 Dry Clean API: http://localhost:{port}/api/dry-clean")
     logger.info("="*50)
     
     # Run app
     app.run(
         host='0.0.0.0',
-        port=3000,
+        port=port,
         debug=config.DEBUG, 
         threaded=True
     )

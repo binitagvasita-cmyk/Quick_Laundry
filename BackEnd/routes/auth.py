@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from BackEnd.models.user import User
 from BackEnd.services.otp_service import OTPService
-from BackEnd.services.otp_service import OTPService
 from BackEnd.services.email_service import EmailService
 from BackEnd.services.jwt_service import JWTService, token_required
 from BackEnd.services.google_oauth_service import GoogleOAuthService
@@ -38,25 +37,36 @@ def init_auth_routes(app, config):
             return response, 200
 
         try:
+            logger.info("=" * 50)
+            logger.info("📧 SEND OTP REQUEST RECEIVED")
+            logger.info("=" * 50)
+            
             data = request.get_json(silent=True)
+            logger.info(f"📦 Request data: {data}")
             
             if not data or 'email' not in data:
+                logger.error("❌ No email provided in request")
                 return jsonify(
                     success=False,
                     message='Email is required'
                 ), 400
 
             email = data['email'].strip().lower()
+            logger.info(f"📧 Processing OTP request for: {email}")
 
             # Validate email format
             is_valid, msg = Validators.validate_email_format(email)
             if not is_valid:
+                logger.error(f"❌ Invalid email format: {msg}")
                 return jsonify(
                     success=False,
                     message=msg
                 ), 400
 
+            logger.info("✅ Email format is valid")
+
             # Check rate limiting
+            logger.info("🚦 Checking rate limits...")
             can_request, message = OTPService.can_request_otp(
                 email, 
                 'registration',
@@ -65,12 +75,16 @@ def init_auth_routes(app, config):
             )
 
             if not can_request:
+                logger.warning(f"⚠️ Rate limit exceeded for {email}: {message}")
                 return jsonify(
                     success=False,
                     message=message
                 ), 429
 
+            logger.info("✅ Rate limit check passed")
+
             # Generate and store OTP
+            logger.info("🔢 Generating OTP...")
             otp_code, expires_at = OTPService.create_otp(
                 email, 
                 'registration',
@@ -78,12 +92,30 @@ def init_auth_routes(app, config):
             )
 
             if not otp_code:
+                logger.error("❌ CRITICAL: OTP generation failed!")
+                logger.error("This usually means:")
+                logger.error("1. Database INSERT failed")
+                logger.error("2. otp_verification table is missing columns")
+                logger.error("3. Database connection issue")
+                
+                # Try to get more info about the table
+                try:
+                    check_query = "DESCRIBE otp_verification"
+                    table_info = Database.execute_query(check_query, fetch='all')
+                    logger.info(f"📋 otp_verification table structure: {table_info}")
+                except Exception as e:
+                    logger.error(f"❌ Could not check table structure: {e}")
+                
                 return jsonify(
                     success=False,
-                    message='Failed to generate OTP. Please try again'
+                    message='Failed to generate OTP. Database error. Please contact support.'
                 ), 500
 
+            logger.info(f"✅ OTP generated successfully: {otp_code}")
+            logger.info(f"⏰ Expires at: {expires_at}")
+
             # Send OTP email
+            logger.info(f"📤 Sending OTP email to {email}...")
             email_success, email_msg = email_service.send_otp_email(
                 email, 
                 otp_code, 
@@ -91,13 +123,14 @@ def init_auth_routes(app, config):
             )
 
             if not email_success:
-                logger.error(f"Failed to send OTP email: {email_msg}")
+                logger.error(f"❌ Failed to send OTP email: {email_msg}")
                 return jsonify(
                     success=False,
-                    message='Failed to send OTP email. Please check your email address'
+                    message=f'Failed to send OTP email: {email_msg}'
                 ), 500
 
-            logger.info(f"OTP sent successfully to {email}")
+            logger.info(f"✅ OTP sent successfully to {email}")
+            logger.info("=" * 50)
             
             return jsonify(
                 success=True,
@@ -106,10 +139,13 @@ def init_auth_routes(app, config):
             ), 200
 
         except Exception as e:
-            logger.exception("Send OTP error")
+            logger.error("=" * 50)
+            logger.error("❌ SEND OTP ERROR")
+            logger.exception(f"Full error traceback: {e}")
+            logger.error("=" * 50)
             return jsonify(
                 success=False,
-                message='Internal server error. Please try again later'
+                message=f'Internal server error: {str(e)}'
             ), 500
 
     # ---------- VERIFY OTP ----------
@@ -320,12 +356,7 @@ def init_auth_routes(app, config):
     # ---------- FORGOT PASSWORD ----------
     @auth_bp.route('/forgot-password', methods=['POST', 'OPTIONS'])
     def forgot_password():
-        """
-        Request password reset link
-        POST /api/forgot-password
-        Body: { "email": "user@example.com" }
-        """
-        # Handle CORS preflight
+        """Request password reset link"""
         if request.method == 'OPTIONS':
             return jsonify(success=True), 200
         
@@ -333,55 +364,33 @@ def init_auth_routes(app, config):
             data = request.get_json(silent=True)
             
             if not data:
-                return jsonify(
-                    success=False,
-                    message='No data provided'
-                ), 400
+                return jsonify(success=False, message='No data provided'), 400
             
             email = data.get('email', '').strip().lower()
             
-            # Validate email format
             if not email:
-                return jsonify(
-                    success=False,
-                    message='Email is required'
-                ), 400
+                return jsonify(success=False, message='Email is required'), 400
             
             is_valid, msg = Validators.validate_email_format(email)
             if not is_valid:
-                return jsonify(
-                    success=False,
-                    message=msg
-                ), 400
+                return jsonify(success=False, message=msg), 400
             
-            # Check rate limiting (3 requests per hour)
             can_request, message = PasswordResetService.can_request_reset(
-                email, 
-                max_attempts=3, 
-                window_hours=1
+                email, max_attempts=3, window_hours=1
             )
             
             if not can_request:
                 logger.warning(f"Rate limit exceeded for password reset: {email}")
-                return jsonify(
-                    success=False,
-                    message=message
-                ), 429
+                return jsonify(success=False, message=message), 429
             
-            # Check if user exists
             user = User.get_user_by_email(email)
             
-            # Always return success message for security
             success_message = "If an account exists with this email, you will receive a password reset link shortly."
             
             if not user:
                 logger.info(f"Password reset requested for non-existent email: {email}")
-                return jsonify(
-                    success=True,
-                    message=success_message
-                ), 200
+                return jsonify(success=True, message=success_message), 200
             
-            # Check if it's a Google OAuth account without password
             if user.get('google_id') and not user.get('password_hash'):
                 logger.info(f"Password reset requested for OAuth-only account: {email}")
                 return jsonify(
@@ -389,69 +398,38 @@ def init_auth_routes(app, config):
                     message='This account uses Google Sign-In. Please use "Sign in with Google" instead.'
                 ), 400
             
-            # Generate reset token (1 hour expiry)
             reset_token = jwt_service.generate_password_reset_token(email, expires_in_hours=1)
             
             if not reset_token:
                 logger.error(f"Failed to generate reset token for: {email}")
-                return jsonify(
-                    success=False,
-                    message='Failed to generate reset token. Please try again.'
-                ), 500
+                return jsonify(success=False, message='Failed to generate reset token. Please try again.'), 500
             
-            # Store reset request in database
             success, db_message = PasswordResetService.create_reset_request(
-                email, 
-                reset_token, 
-                expires_in_hours=1
+                email, reset_token, expires_in_hours=1
             )
             
             if not success:
                 logger.error(f"Failed to store reset request: {db_message}")
-                return jsonify(
-                    success=False,
-                    message='Failed to process reset request. Please try again.'
-                ), 500
+                return jsonify(success=False, message='Failed to process reset request. Please try again.'), 500
             
-            # Send reset email
-            email_success, email_message = email_service.send_password_reset_email(
-                email, 
-                reset_token
-            )
+            email_success, email_message = email_service.send_password_reset_email(email, reset_token)
             
             if not email_success:
                 logger.error(f"Failed to send reset email to {email}: {email_message}")
-                return jsonify(
-                    success=False,
-                    message='Failed to send reset email. Please try again later.'
-                ), 500
+                return jsonify(success=False, message='Failed to send reset email. Please try again later.'), 500
             
             logger.info(f"Password reset email sent to: {email}")
             
-            return jsonify(
-                success=True,
-                message=success_message
-            ), 200
+            return jsonify(success=True, message=success_message), 200
             
         except Exception as e:
             logger.exception(f"Error in forgot_password: {e}")
-            return jsonify(
-                success=False,
-                message='An error occurred. Please try again later.'
-            ), 500
+            return jsonify(success=False, message='An error occurred. Please try again later.'), 500
 
     # ---------- RESET PASSWORD ----------
     @auth_bp.route('/reset-password', methods=['POST', 'OPTIONS'])
     def reset_password():
-        """
-        Reset password using token
-        POST /api/reset-password
-        Body: { 
-            "token": "reset_token_here",
-            "new_password": "newpassword123"
-        }
-        """
-        # Handle CORS preflight
+        """Reset password using token"""
         if request.method == 'OPTIONS':
             return jsonify(success=True), 200
         
@@ -459,81 +437,48 @@ def init_auth_routes(app, config):
             data = request.get_json(silent=True)
             
             if not data:
-                return jsonify(
-                    success=False,
-                    message='No data provided'
-                ), 400
+                return jsonify(success=False, message='No data provided'), 400
             
             token = data.get('token', '').strip()
             new_password = data.get('new_password', '')
             
-            # Validate inputs
             if not token:
-                return jsonify(
-                    success=False,
-                    message='Reset token is required'
-                ), 400
+                return jsonify(success=False, message='Reset token is required'), 400
             
             if not new_password:
-                return jsonify(
-                    success=False,
-                    message='New password is required'
-                ), 400
+                return jsonify(success=False, message='New password is required'), 400
             
-            # Validate password strength
             is_valid, password_message = Validators.validate_password(new_password)
             if not is_valid:
-                return jsonify(
-                    success=False,
-                    message=password_message
-                ), 400
+                return jsonify(success=False, message=password_message), 400
             
-            # Verify reset token (JWT)
             token_valid, email_or_error = jwt_service.verify_password_reset_token(token)
             
             if not token_valid:
                 logger.warning(f"Invalid reset token attempt: {email_or_error}")
-                return jsonify(
-                    success=False,
-                    message=email_or_error
-                ), 400
+                return jsonify(success=False, message=email_or_error), 400
             
             email = email_or_error
             
-            # Verify token in database
             db_valid, db_email_or_error = PasswordResetService.verify_reset_token(token)
             
             if not db_valid:
                 logger.warning(f"Reset token verification failed for {email}: {db_email_or_error}")
-                return jsonify(
-                    success=False,
-                    message=db_email_or_error
-                ), 400
+                return jsonify(success=False, message=db_email_or_error), 400
             
-            # Get user
             user = User.get_user_by_email(email)
             
             if not user:
                 logger.error(f"User not found during password reset: {email}")
-                return jsonify(
-                    success=False,
-                    message='User not found'
-                ), 404
+                return jsonify(success=False, message='User not found'), 404
             
-            # Update password
             success, update_message = User.update_password(user['id'], new_password)
             
             if not success:
                 logger.error(f"Failed to update password for {email}: {update_message}")
-                return jsonify(
-                    success=False,
-                    message='Failed to update password. Please try again.'
-                ), 500
+                return jsonify(success=False, message='Failed to update password. Please try again.'), 500
             
-            # Mark token as used
             PasswordResetService.mark_token_as_used(token)
-            
-            # Delete all user sessions (force re-login)
             SessionService.delete_user_sessions(user['id'])
             
             logger.info(f"Password reset successful for: {email}")
@@ -545,20 +490,12 @@ def init_auth_routes(app, config):
             
         except Exception as e:
             logger.exception(f"Error in reset_password: {e}")
-            return jsonify(
-                success=False,
-                message='An error occurred. Please try again later.'
-            ), 500
+            return jsonify(success=False, message='An error occurred. Please try again later.'), 500
 
     # ---------- VERIFY RESET TOKEN ----------
     @auth_bp.route('/verify-reset-token', methods=['POST', 'OPTIONS'])
     def verify_reset_token():
-        """
-        Verify if reset token is valid (before showing reset form)
-        POST /api/verify-reset-token
-        Body: { "token": "reset_token_here" }
-        """
-        # Handle CORS preflight
+        """Verify if reset token is valid"""
         if request.method == 'OPTIONS':
             return jsonify(success=True), 200
         
@@ -566,38 +503,23 @@ def init_auth_routes(app, config):
             data = request.get_json(silent=True)
             
             if not data:
-                return jsonify(
-                    success=False,
-                    message='No data provided'
-                ), 400
+                return jsonify(success=False, message='No data provided'), 400
             
             token = data.get('token', '').strip()
             
             if not token:
-                return jsonify(
-                    success=False,
-                    message='Token is required'
-                ), 400
+                return jsonify(success=False, message='Token is required'), 400
             
-            # Verify JWT token
             token_valid, email_or_error = jwt_service.verify_password_reset_token(token)
             
             if not token_valid:
-                return jsonify(
-                    success=False,
-                    message=email_or_error
-                ), 400
+                return jsonify(success=False, message=email_or_error), 400
             
-            # Verify in database
             db_valid, db_email_or_error = PasswordResetService.verify_reset_token(token)
             
             if not db_valid:
-                return jsonify(
-                    success=False,
-                    message=db_email_or_error
-                ), 400
+                return jsonify(success=False, message=db_email_or_error), 400
             
-            # Mask email for display
             email = email_or_error
             email_parts = email.split('@')
             if len(email_parts) == 2:
@@ -605,18 +527,11 @@ def init_auth_routes(app, config):
             else:
                 masked_email = '***@***'
             
-            return jsonify(
-                success=True,
-                message='Token is valid',
-                email=masked_email
-            ), 200
+            return jsonify(success=True, message='Token is valid', email=masked_email), 200
             
         except Exception as e:
             logger.exception(f"Error in verify_reset_token: {e}")
-            return jsonify(
-                success=False,
-                message='An error occurred verifying the token'
-            ), 500
+            return jsonify(success=False, message='An error occurred verifying the token'), 500
 
     # ---------- AUTH HEALTH ----------
     @auth_bp.route('/health-auth', methods=['GET', 'OPTIONS'])
