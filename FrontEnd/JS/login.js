@@ -20,7 +20,7 @@ let BACKEND_AVAILABLE = false;
 // Test backend availability on load
 async function testBackendConnection() {
   try {
-    const response = await fetch('http://localhost:3000/health', {
+    const response = await fetch('https://quick-laundry-backend.onrender.com', {
       method: 'GET',
       signal: AbortSignal.timeout(3000) // 3 second timeout
     });

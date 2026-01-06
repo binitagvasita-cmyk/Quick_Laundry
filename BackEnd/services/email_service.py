@@ -47,7 +47,7 @@ class EmailService:
             if not self.username or not self.password:
                 raise ValueError("Email credentials not configured. Please set MAIL_USERNAME and MAIL_PASSWORD in environment variables.")
             
-            server = smtplib.SMTP(self.smtp_server, self.smtp_port, timeout=30)
+            server = smtplib.SMTP(self.smtp_server, self.smtp_port, timeout=10)
             logger.info("✅ SMTP connection established")
             
             server.starttls()
