@@ -33,7 +33,7 @@ def create_app(config_name='development'):
     CORS(app, 
          resources={
              r"/*": {
-                 "origins": "*",  # Allow all origins for now
+                 "origins": ["*","https://marvelous-brigadeiros-4a14c8.netlify.app/"],  # Allow all origins for now
                  "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                  "allow_headers": ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
                  "expose_headers": ["Content-Type", "Authorization"],
